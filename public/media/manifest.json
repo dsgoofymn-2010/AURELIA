@@ -1,0 +1,98 @@
+{
+ "hero": [
+  "all",
+  "f01",
+  "f02",
+  "f03",
+  "f04",
+  "f05",
+  "f06",
+  "f07",
+  "f08",
+  "f09",
+  "f10"
+ ],
+ "stills": [
+  "balcony",
+  "bathroom",
+  "bedroom2",
+  "dining",
+  "dollhouse",
+  "kitchen",
+  "living",
+  "master",
+  "rooftop"
+ ],
+ "seq": {
+  "lift": 100,
+  "rooftop": 72,
+  "rooms/balcony": 36,
+  "rooms/bathroom": 36,
+  "rooms/bedroom2": 36,
+  "rooms/dining": 36,
+  "rooms/kitchen": 36,
+  "rooms/living": 36,
+  "rooms/master": 36
+ },
+ "segs": {
+  "rooms/balcony": [
+   [
+    1,
+    36
+   ]
+  ],
+  "rooms/bathroom": [
+   [
+    1,
+    26
+   ],
+   [
+    33,
+    36
+   ]
+  ],
+  "rooms/bedroom2": [
+   [
+    1,
+    27
+   ],
+   [
+    31,
+    36
+   ]
+  ],
+  "rooms/dining": [
+   [
+    1,
+    36
+   ]
+  ],
+  "rooms/kitchen": [
+   [
+    1,
+    28
+   ],
+   [
+    34,
+    36
+   ]
+  ],
+  "rooms/living": [
+   [
+    1,
+    36
+   ]
+  ],
+  "rooms/master": [
+   [
+    1,
+    28
+   ],
+   [
+    33,
+    36
+   ]
+  ]
+ },
+ "ext": "webp"
+}

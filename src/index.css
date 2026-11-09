@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0b0a10;
+  --color-night: #120f1c;
+  --color-champagne: #d9b98a;
+  --color-champagne-soft: #efe0c6;
+  --color-gold: #c9a063;
+  --color-mist: #b9b3c7;
+}
+
+html, body, #root { height: 100%; color-scheme: dark; margin: 0; background: var(--color-ink); color: #f4efe6; }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+canvas { touch-action: none; }
+
+.glass {
+  background: linear-gradient(160deg, rgba(28, 24, 40, 0.62), rgba(14, 12, 22, 0.5));
+  border: 1px solid rgba(217, 185, 138, 0.18);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+}
+.hairline { border-color: rgba(217, 185, 138, 0.22); }
+.tracking-luxe { letter-spacing: 0.32em; }
+.text-gradient-gold {
+  background: linear-gradient(180deg, #f6e7cc 0%, #d9b98a 55%, #a9824f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+:focus-visible { outline: 1px solid var(--color-champagne); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* lens: vignette + animated film grain over the frames */
+.vignette { background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(5,4,8,0.55) 100%); }
+.grain {
+  opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.9s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0,0) } 20% { transform: translate(-3%,2%) } 40% { transform: translate(2%,-3%) }
+  60% { transform: translate(-2%,-1%) } 80% { transform: translate(3%,3%) } 100% { transform: translate(0,0) }
+}
+.grain { inset: -10%; }

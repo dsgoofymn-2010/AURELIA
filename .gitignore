@@ -4,3 +4,5 @@ _render/x.zip
 _render/zieucefK
 Thumbs.db
 desktop.ini
+node_modules/
+dist/
