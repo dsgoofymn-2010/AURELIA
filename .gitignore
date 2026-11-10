@@ -6,3 +6,12 @@ Thumbs.db
 desktop.ini
 node_modules/
 dist/
+
+# backend
+backend/.venv/
+backend/.env
+backend/uvicorn*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
