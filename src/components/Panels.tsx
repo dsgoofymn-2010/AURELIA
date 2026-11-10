@@ -33,7 +33,7 @@ export function Panels() {
                   ✕
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
                 {panel === 'discover' && <Discover />}
                 {panel === 'amenities' && <Amenities />}
                 {panel === 'contact' && <Contact />}

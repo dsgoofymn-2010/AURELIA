@@ -1,254 +1,71 @@
 /* ==========================================================================
-   Featured Project Story Telling Carousel
+   Featured projects: the second page
    --------------------------------------------------------------------------
-   Layout:
-   - .fsst-carousel-wrapper: full‑width container with hidden overflow.
-   - .fsst-carousel-track: flex row that translates horizontally to show the
-     active slide.
-   - .fsst-slide: each slide is a flex container split into left (media) and
-     right (text) parts.
-   - Media occupies ~38% of the width, text ~60% (leaving a small gap).
-   - Clicking the left media area adds the ‘visible’ class to the right side, which
-     triggers a fade/slide‑in animation.
-   - Slides auto‑advance every 5 s (configurable in the component) and wrap
-     around.
+   A sheet of drawing paper that scrolls up over the tower. Each slide is a
+   short film of a building going up, with its story beside it.
+
+   Everything that moves here is opacity or transform only, and the slides
+   are a native scroll-snap track, so phones do the work on the compositor.
    ========================================================================== */
 
-.fsst-carousel-wrapper {
+.fp {
   position: relative;
-  width: 75%;
-  /* 85% of the page width */
-  max-width: 75%;
-  margin: 0 auto;
-  overflow: hidden;
-  padding: 3rem 0;
-  /* reduced vertical padding */
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.fsst-carousel-track {
-  display: flex;
-  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.fsst-slide {
-  min-width: 100%;
-  height: clamp(380px, 45vw, 560px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5%;
-  padding: 2% 2%;
-  box-sizing: border-box;
-}
-
-/* --------------------------------------------------------------------------
-   Left media side (35‑40 % width)
-   -------------------------------------------------------------------------- */
-.fsst-media {
-  flex: 0 0 30%;
-  height: 100%;
-  /* width: 60%; */
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fsst-media:hover {
-  box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);
-}
-
-.fsst-media-placeholder {
-  width: 100%;
-  height: 100%;
-  background: wheat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 1.2rem;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.fsst-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* --------------------------------------------------------------------------
-   Right text side (55‑60 % width)
-   -------------------------------------------------------------------------- */
-.fsst-text {
-  flex: 0 0 50%;
-  max-width: 60%;
-  opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 2s ease, transform 2s ease;
-  color: #eaeaea;
-  padding-left: 3%;
-}
-
-.fsst-text.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.fsst-heading {
-  margin: 0 0 0.4rem;
-  font-size: clamp(24px, 2.8vw, 32px);
-  font-size: clamp(32px, 3.5vw, 44px);
-  font-weight: 700;
-  color: #fff;
-}
-
-.fsst-subheading {
-  margin: 0 0 1rem;
-  font-size: clamp(16px, 1.6vw, 20px);
-  font-size: clamp(20px, 2vw, 28px);
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.fsst-paragraphs {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-/* Flip animation for characters */
-@keyframes flipIn {
-  0% {
-    transform: rotateX(90deg);
-    opacity: 0;
-  }
-
-  100% {
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-}
-
-.char {
-  display: inline-block;
-  animation-name: flipIn;
-  animation-duration: 0.4s;
-  animation-fill-mode: both;
-  animation-timing-function: ease-out;
-}
-
-/* Loading placeholder mimicking YouTube */
-.fsst-loading {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-}
-
-.fsst-loading .line {
-  height: 0.8rem;
-  background: rgba(163, 34, 34, 0.2);
-  border-radius: 4px;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.fsst-loading .line-short {
-  width: 30%;
-}
-
-.fsst-loading .line-medium {
-  width: 60%;
-}
-
-.fsst-loading .line-long {
-  width: 90%;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.6;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Optional navigation arrows (hidden unless needed)
-   -------------------------------------------------------------------------- */
-.fsst-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1cm;
-  height: 1cm;
-  background: rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  user-select: none;
   z-index: 10;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  color-scheme: light;
+  background-color: var(--color-paper);
+  /* faint drafting grid */
+  background-image:
+    linear-gradient(rgba(21, 19, 28, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 19, 28, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--color-ink);
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.45);
 }
 
-.fsst-nav:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-}
-
-.fsst-nav:active {
-  transform: translateY(-50%) scale(0.95);
-
-
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3rem;
-  height: 3rem;
-  background: rgba(0, 0, 0, 0.45);
-  border-radius: 50%;
+.fp-track {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  z-index: 5;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.fp-track::-webkit-scrollbar { display: none; }
+.fp-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: center; scroll-snap-stop: always; }
+
+/* the film sits straight on the paper: its studio-white edges are feathered into the page */
+.fp-film { position: relative; aspect-ratio: 9 / 16; background: var(--color-paper); }
+.fp-film > video,
+.fp-film > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fp-film::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--color-paper), transparent 20%, transparent 80%, var(--color-paper)),
+    linear-gradient(180deg, var(--color-paper), transparent 12%, transparent 90%, var(--color-paper));
 }
 
-.fsst-nav.prev {
-  left: 1rem;
-}
+/* story text: each block rises in when its slide becomes the current one */
+.fp-rise { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.fp-slide[data-active='true'] .fp-rise { opacity: 1; transform: none; transition-delay: calc(var(--i, 0) * 90ms + 120ms); }
 
-.fsst-nav.next {
-  right: 1rem;
-}
+/* build progress under the film: runs for exactly as long as the film does */
+.fp-progress { transform: scaleX(0); transform-origin: left; }
+.fp-slide[data-state='playing'] .fp-progress { animation: fp-build var(--dur, 3s) linear forwards; }
+.fp-slide[data-state='done'] .fp-progress { transform: scaleX(1); }
+@keyframes fp-build { to { transform: scaleX(1); } }
 
-/* Ensure no horizontal scroll on the page */
-html,
-body {
-  overflow-x: hidden;
+/* the three beats light up in turn while the film plays */
+.fp-beat { opacity: 0.38; transition: opacity 0.5s ease; }
+.fp-slide[data-state='done'] .fp-beat,
+.fp-slide[data-state='idle'] .fp-beat { opacity: 1; }
+.fp-slide[data-state='playing'] .fp-beat { animation: fp-beat-on 0.5s ease forwards; animation-delay: calc(var(--dur, 3s) * var(--b, 0) / 3); }
+@keyframes fp-beat-on { to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-rise { opacity: 1; transform: none; }
+  .fp-beat { opacity: 1; }
 }

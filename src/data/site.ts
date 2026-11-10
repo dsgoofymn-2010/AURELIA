@@ -110,3 +110,48 @@ export const LAYOUT = layout as unknown as {
 
 /** where the tower sits in the hero frame — used as the crop focal point on narrow screens */
 export const HERO_FOCUS: Pt = [0.48, 0.55]
+
+/**
+ * Second page: featured projects. Each one is a short film of the building going up
+ * (public/media/projects/<id>.mp4, with <id>.webp as the finished-building still).
+ * Names and copy are placeholders: replace them with the real projects.
+ */
+export interface Project {
+  id: string
+  name: string
+  kind: string
+  blurb: string
+  /** the three beats of the film, in order */
+  stages: [string, string, string]
+}
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'tower',
+    name: 'The Residential Tower',
+    kind: 'High-rise living',
+    blurb: 'A slender tower of stacked homes over a glazed double-height podium, with a balcony for every residence.',
+    stages: ['Core and columns climb floor by floor', 'Balconies and glazing wrap the frame', 'The podium lights up at street level'],
+  },
+  {
+    id: 'residences',
+    name: 'The Courtyard Residences',
+    kind: 'Mid-rise apartments',
+    blurb: 'Eight storeys of classical proportion around a pool court: arched top floor, deep cornice, wrought balconies.',
+    stages: ['Scaffold and frame rise together', 'Stone-toned façade closes the envelope', 'Pool court and terraces are finished'],
+  },
+  {
+    id: 'hospital',
+    name: 'The Medical Centre',
+    kind: 'Healthcare',
+    blurb: 'A clinical block and a glazed tower joined on one base, planned around daylight and short walking distances.',
+    stages: ['Slabs and columns set the grid', 'Ribbon windows and curtain wall go on', 'Rooftop plant and signage complete it'],
+  },
+  {
+    id: 'chapel',
+    name: 'The Stone Chapel',
+    kind: 'Place of worship',
+    blurb: 'Rough-cut stone on a brick plinth, lancet windows and a slate spire: traditional craft, built to last.',
+    stages: ['Stone walls rise from the brick base', 'Gables and traceried windows take shape', 'The spire and cross crown the tower'],
+  },
+]
