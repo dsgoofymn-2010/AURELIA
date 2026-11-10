@@ -34,7 +34,9 @@ def send(inquiry=None, **settings_overrides):
 def test_sends_to_owner_inbox_with_client_reply_to():
     message_id, mock_client = send()
     assert message_id == "msg-123"
-    mock_client.assert_called_once_with("ses", region_name="ap-south-1")
+    mock_client.assert_called_once_with(
+        "ses", region_name="ap-south-1", endpoint_url=None
+    )
 
     kwargs = mock_client.return_value.send_email.call_args.kwargs
     assert kwargs["Source"] == OWNER
@@ -54,6 +56,13 @@ def test_message_body_contains_all_five_fields():
         assert value in html
     assert kwargs["Message"]["Body"]["Text"]["Charset"] == "UTF-8"
     assert kwargs["Message"]["Body"]["Html"]["Charset"] == "UTF-8"
+
+
+def test_custom_ses_endpoint_is_used_when_configured():
+    _, mock_client = send(ses_endpoint_url="http://127.0.0.1:5002")
+    mock_client.assert_called_once_with(
+        "ses", region_name="ap-south-1", endpoint_url="http://127.0.0.1:5002"
+    )
 
 
 def test_disabled_email_makes_no_ses_call():

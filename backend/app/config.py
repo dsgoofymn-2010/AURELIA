@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     ses_from_address: str = "sales@aurelia-residences.com"
     notify_to: str = "sales@aurelia-residences.com"
     email_enabled: bool = True
+    # Optional local fake-SES override (e.g. http://127.0.0.1:5000) for
+    # development without AWS. Empty = real Amazon SES.
+    ses_endpoint_url: str = ""
 
     @property
     def cors_origin_list(self) -> list[str]:

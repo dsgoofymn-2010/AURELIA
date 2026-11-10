@@ -71,7 +71,11 @@ def send_inquiry_notification(
         )
         return None
     try:
-        client = boto3.client("ses", region_name=settings.ses_region)
+        client = boto3.client(
+            "ses",
+            region_name=settings.ses_region,
+            endpoint_url=settings.ses_endpoint_url or None,
+        )
         response = client.send_email(
             Source=settings.ses_from_address,
             Destination={"ToAddresses": [settings.notify_to]},
