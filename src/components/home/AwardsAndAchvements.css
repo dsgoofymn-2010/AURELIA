@@ -1,0 +1,294 @@
+/* ==========================================================================
+   Awards & Achievements - Orbit Reel Section Styles
+   Exact replica of the showcase video:
+   - Recognition & Honors top header badge
+   - 5-card panoramic sweeping arch
+   - Shimmering image skeleton with icon + "IMAGE" label
+   - Radiant coral glowing border on active center card
+   - Dynamically updating title & description below center card
+   - Smooth 3-second auto-rotation and instant click-to-center
+   ========================================================================== */
+
+.awards-section-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background: #090a0f;
+  box-sizing: border-box;
+  padding: 3.5rem 1.5rem 4rem;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Header Section
+   ========================================================================== */
+.awards-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.awards-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ff5733;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.awards-badge-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.awards-heading {
+  font-size: clamp(28px, 3.8vw, 46px);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
+}
+
+.awards-subheading {
+  font-size: clamp(13px, 1.5vw, 16px);
+  color: rgba(255, 255, 255, 0.52);
+  margin: 0 auto;
+  max-width: 580px;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   Orbit Arch Stage
+   ========================================================================== */
+.orbit-stage {
+  --card-width: clamp(180px, 16vw, 240px);
+  --card-height: clamp(260px, 23vw, 345px);
+  --card-radius: 22px;
+
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(430px, 38vw, 520px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 auto;
+  padding-top: 25px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* Subtle background spotlight behind the active card */
+.orbit-ambient-glow {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(650px, 85vw);
+  height: 320px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 87, 51, 0.08) 0%,
+    rgba(255, 87, 51, 0.02) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  filter: blur(55px);
+  z-index: 1;
+}
+
+/* Individual card container positioned along the arc */
+.orbit-card-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--card-width);
+  height: var(--card-height);
+  transform-origin: center center;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+  transition:
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.75s ease;
+}
+
+/* Card body */
+.orbit-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #12131a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    filter 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover on inactive cards */
+.orbit-card:not(.is-active):hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  filter: brightness(1.22);
+  box-shadow: 0 22px 55px -10px rgba(0, 0, 0, 0.95);
+}
+
+/* Center Active Card with radiant Coral Border (matching video) */
+.orbit-card.is-active {
+  cursor: default;
+  border: 2px solid #ff5733;
+  box-shadow:
+    0 0 32px rgba(255, 87, 51, 0.38),
+    0 0 10px rgba(255, 87, 51, 0.22),
+    0 26px 65px -12px rgba(0, 0, 0, 0.95);
+}
+
+/* ==========================================================================
+   Image Skeleton (Exact visual from video)
+   ========================================================================== */
+.orbit-skeleton-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(165deg, #171822 0%, #101117 60%, #0a0a0f 100%);
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* Light shimmer sweep across skeleton */
+.orbit-skeleton-shimmer {
+  position: absolute;
+  inset: -100% 0;
+  width: 280%;
+  height: 280%;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.02) 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.02) 60%,
+    transparent 75%
+  );
+  animation: orbit-shimmer-sweep 2.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+@keyframes orbit-shimmer-sweep {
+  0% {
+    transform: translate(-70%, -45%);
+  }
+  100% {
+    transform: translate(35%, 45%);
+  }
+}
+
+.orbit-skeleton-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+.orbit-skeleton-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.orbit-skeleton-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+/* Image if supplied */
+.orbit-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.orbit-card-image.is-loaded {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Active Card Info (Below center card, exact from video)
+   ========================================================================== */
+.orbit-active-info {
+  margin-top: 1.5rem;
+  text-align: center;
+  z-index: 6;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-active-title {
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+  animation: orbit-fade-slide-up 0.45s ease-out;
+}
+
+.orbit-active-desc {
+  font-size: clamp(13px, 1.4vw, 15px);
+  color: rgba(255, 255, 255, 0.58);
+  margin: 4px 0 0;
+  animation: orbit-fade-slide-up 0.45s ease-out;
+}
+
+@keyframes orbit-fade-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
