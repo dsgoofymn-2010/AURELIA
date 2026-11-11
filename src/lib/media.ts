@@ -9,7 +9,8 @@
  * direction, see build-media.py): they are fetched whole into memory as a Blob,
  * so playback never waits on the network and "back" can start instantly.
  */
-import type { RoomId } from '../data/site'
+import type { RoomId } from '@/data/site'
+import type { Project } from '@/types/project'
 import { TIER } from './tier'
 
 export interface Manifest {
@@ -21,7 +22,7 @@ export interface Manifest {
   ext: string
 }
 
-const BASE = './media/'
+const BASE = '/media/'
 let manifest: Manifest = { hero: [], stills: [], films: {}, ext: 'webp' }
 
 export async function loadManifest() {
@@ -152,3 +153,9 @@ export function preloadFilm(name: string, reverse = false) {
   loadFilm(name, reverse)
   loadImage(filmFrameUrl(name, reverse ? 'last' : 'first'), 1)
 }
+
+/* ---------------- project pictures ---------------- */
+
+/** a project's construction film, and its finished-building image */
+export const projectFilm = (p: Project) => `/media/projects/${p.id}.mp4`
+export const projectStill = (p: Project) => `/media/projects/${p.id}.webp`

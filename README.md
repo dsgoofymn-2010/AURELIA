@@ -3,12 +3,48 @@
 A pre-rendered, photoreal tour of the AURELIA tower. All imagery is rendered in Blender Cycles
 (`AURELIA_Cinematic.blend`) and played back in the browser on a single canvas.
 
-**Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · GSAP · Framer Motion
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP · Framer Motion.
+Contact inquiries are stored and emailed by the FastAPI service in `backend/`.
 
 ```bash
 npm install
-npm run dev       # http://localhost:5173
-npm run build     # static site in dist/ — upload the whole folder to any static host
+npm run dev        # http://localhost:3000 (the contact form answers as a demo without the backend)
+npm run build      # production build: every page is prerendered, /api/inquiries runs on the server
+npm run start      # serve the production build
+npm run typecheck
+```
+
+| Variable | Where | What |
+| --- | --- | --- |
+| `INQUIRY_API_URL` | server | Base URL of the FastAPI inquiries service, e.g. `http://localhost:8000`. Required in production: without it the form refuses rather than losing leads. |
+
+**Hosting on AWS:** the site needs a Node runtime for `/api/inquiries`, so deploy with AWS Amplify
+Hosting (Next.js SSR), or run `npm run build && npm run start` on EC2 / ECS / App Runner behind
+CloudFront. Run the FastAPI backend alongside it and point `INQUIRY_API_URL` at it.
+
+## Code layout
+
+```
+src/
+  app/                          routes
+    page.tsx                    home: the tower, featured projects, awards, certificates, contact
+    projects/page.tsx           every project, in category rows
+    projects/[slug]/page.tsx    one project (prerendered for each), swipe on to the others
+    contact/page.tsx            contact (/contacts redirects here)
+    api/inquiries/route.ts      validates the form and passes it to the FastAPI service
+  components/
+    layout/                     SiteHeader (glass nav), SiteFooter, PageContainer
+    home/                       HomeHero, Home3DScene, FeaturedProjectStoryboard, Awards, Certificates
+      scene/                    the tower experience: canvas renderer, film player, director, store,
+                                residence / room / rooftop / panel UI. Browser-only and home-only:
+                                Home3DScene loads it with next/dynamic (ssr: false)
+    projects/                   ProjectCategoryRow, ProjectCard, ProjectCarousel,
+                                ProjectGallery (film or rising image), ProjectDetails (story)
+    contact/InquiryForm.tsx
+  lib/                          media loader, device tier, inquiry validation, reduced motion
+  data/                         site copy, projects, awards and certificates (placeholders)
+  types/                        Project, Award, Certificate
+public/media/                   everything the site loads (built by tools/build-media.py)
 ```
 
 ## The visitor's journey
@@ -58,6 +94,9 @@ Blender cameras, so the overlays line up with the renders exactly.
 ## Edit before launch
 - `src/data/site.ts`: contact inbox (`CONTACT_EMAIL`), floor availability, room names,
   areas and copy. **The figures are placeholders until the sales sheet is confirmed.**
-- `src/data/site.ts` → `PROJECTS`: the names and copy of the four featured projects are placeholders.
-- The booking form opens the visitor's email app. Connect it to a CRM or form backend for real
-  lead capture.
+- `src/data/projects.ts`: the names and copy of all projects are placeholders. The 8 without a
+  film use AI-generated renders; add `<id>.mp4` to `public/media/projects/` and drop `noFilm` to
+  give one its construction film.
+- `src/data/recognition.ts`: awards and certificates are placeholders. Do not publish
+  credentials the developer does not hold.
+- Set `INQUIRY_API_URL` and the backend's SES settings (`backend/README.md`) before launch.
