@@ -1,3 +1,4 @@
+'use client'
 // Certificates.tsx
 // The certificates page: a sheet of the same drawing paper as the projects page,
 // carrying the development's formal credentials — RERA, ISO, green ratings, approvals.
@@ -7,7 +8,9 @@
 // script), and nothing here decodes video or runs a timer.
 
 import { useEffect, useRef, type CSSProperties } from 'react'
-import { CERTIFICATES, SITE, type Certificate } from '../../data/site'
+import { CERTIFICATES } from '@/data/recognition'
+import { SITE } from '@/data/site'
+import type { Certificate } from '@/types/recognition'
 import './Certificates.css'
 
 /** a formal seal drawn in SVG — no image needed, scales crisply on every screen */
