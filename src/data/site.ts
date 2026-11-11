@@ -112,7 +112,8 @@ export const LAYOUT = layout as unknown as {
 export const HERO_FOCUS: Pt = [0.48, 0.55]
 
 /**
- * Second page: featured projects. Each one is a short film of the building going up
+ * Projects. The second page shows the ones with a film (FEATURED); the projects page shows
+ * them all. Each film is a short clip of the building going up
  * (public/media/projects/<id>.mp4, with <id>.webp as the finished-building still).
  * Names and copy are placeholders: replace them with the real projects.
  */
@@ -123,6 +124,11 @@ export interface Project {
   blurb: string
   /** the three beats of the film, in order */
   stages: [string, string, string]
+  /**
+   * No film yet: the project is shown as a line drawing instead. [floors, bays] sets
+   * the drawing's proportions. Remove this once <id>.mp4 and <id>.webp are in place.
+   */
+  sketch?: [number, number]
 }
 
 /**
@@ -204,4 +210,72 @@ export const PROJECTS: Project[] = [
     blurb: 'Rough-cut stone on a brick plinth, lancet windows and a slate spire: traditional craft, built to last.',
     stages: ['Stone walls rise from the brick base', 'Gables and traceried windows take shape', 'The spire and cross crown the tower'],
   },
+  // ---- placeholders below: shown on the projects page only, until their films are rendered ----
+  {
+    id: 'harbour',
+    name: 'The Harbour Offices',
+    kind: 'Commercial',
+    blurb: 'Twelve floors of column-free workspace behind a shaded glass front, set on the waterfront road.',
+    stages: ['Piles and raft go in below the tide line', 'Steel frame and decks rise two floors a week', 'Shading fins and glazing close the front'],
+    sketch: [12, 6],
+  },
+  {
+    id: 'school',
+    name: 'The Garden School',
+    kind: 'Education',
+    blurb: 'Low classroom wings around a planted court, with deep verandas so every room opens to shade.',
+    stages: ['Wings are set out around the old trees', 'Brick walls and verandas go up', 'The court is planted and the gates open'],
+    sketch: [3, 8],
+  },
+  {
+    id: 'villas',
+    name: 'The Palm Villas',
+    kind: 'Private homes',
+    blurb: 'A row of courtyard villas in lime plaster and timber, each with its own pool and garden wall.',
+    stages: ['Garden walls mark out each plot', 'Roofs and timber screens are fixed', 'Pools are filled and the palms go in'],
+    sketch: [2, 5],
+  },
+  {
+    id: 'hotel',
+    name: 'The Marina Hotel',
+    kind: 'Hospitality',
+    blurb: 'A curved tower of sea-facing rooms over a lobby, ballroom and rooftop pool deck.',
+    stages: ['The curved core climbs first', 'Room floors follow, balcony by balcony', 'Lobby, ballroom and pool deck are fitted'],
+    sketch: [16, 5],
+  },
+  {
+    id: 'arcade',
+    name: 'The Arcade',
+    kind: 'Retail',
+    blurb: 'Three levels of shops along a daylit internal street, with parking tucked below.',
+    stages: ['Basement parking is dug and cast', 'The long roof light is lifted into place', 'Shopfronts and paving finish the street'],
+    sketch: [4, 9],
+  },
+  {
+    id: 'library',
+    name: 'The Civic Library',
+    kind: 'Public building',
+    blurb: 'A stone reading hall under a folded roof, with a quiet garden court at its centre.',
+    stages: ['Stone piers are raised around the court', 'The folded roof spans the hall', 'Shelving, lamps and the garden are set'],
+    sketch: [5, 7],
+  },
+  {
+    id: 'lofts',
+    name: 'The Mill Lofts',
+    kind: 'Adaptive reuse',
+    blurb: 'An old brick mill kept and opened up as tall loft homes, with a new glass storey on the roof.',
+    stages: ['The mill is stripped back to brick and iron', 'New floors and windows are threaded in', 'A glass storey is added on the roof'],
+    sketch: [7, 7],
+  },
+  {
+    id: 'campus',
+    name: 'The Tech Campus',
+    kind: 'Workplace',
+    blurb: 'Four linked office blocks around a shaded plaza, planned for natural light and cross-breeze.',
+    stages: ['Four cores rise together', 'Bridges link the blocks at every third floor', 'The plaza is paved, planted and shaded'],
+    sketch: [9, 8],
+  },
 ]
+
+/** the projects with a film: these are the ones on the second page */
+export const FEATURED = PROJECTS.filter((p) => !p.sketch)

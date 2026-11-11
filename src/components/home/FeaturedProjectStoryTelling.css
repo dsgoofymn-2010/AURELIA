@@ -69,3 +69,45 @@
   .fp-rise { opacity: 1; transform: none; }
   .fp-beat { opacity: 1; }
 }
+
+/* the last slide: "See more" */
+.fp-more { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; text-decoration: none; }
+.fp-more-go {
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  padding: 15px 30px;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-champagne-soft);
+}
+.fp-more-go > span { display: inline-block; margin-left: 8px; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.fp-more:hover .fp-more-go > span { transform: translateX(6px); }
+
+/* ==========================================================================
+   Projects page: every building on one sheet
+   ========================================================================== */
+.pj-grid { display: grid; gap: 28px 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 768px) { .pj-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 24px; } }
+@media (min-width: 1100px) { .pj-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.pj-card { display: block; align-self: start; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pj-pic {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(21, 19, 28, 0.12);
+  background: rgba(255, 255, 255, 0.35);
+  transition: border-color 0.4s ease;
+}
+/* the renders have a studio-white ground: multiplying drops it onto the paper */
+.pj-pic > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.pj-pic > svg { position: absolute; inset: 8% 0; width: 100%; height: 84%; color: var(--color-bronze); transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.pj-card:hover .pj-pic { border-color: rgba(148, 112, 60, 0.7); }
+.pj-card:hover .pj-pic > * { transform: scale(1.04); }
+.pj-tag { position: absolute; left: 10px; top: 10px; z-index: 1; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--color-graphite); }
+
+.pj-in { opacity: 0; transform: translateY(14px); animation: pj-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes pj-in { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pj-in { opacity: 1; transform: none; animation: none; } }
