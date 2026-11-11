@@ -14,6 +14,9 @@ import { unlockPlayback } from '../../lib/player'
 import { store, useStore } from '../../store'
 import { AwardsAndAchvements } from './AwardsAndAchvements'
 import { FeaturedProjectStoryTelling } from './FeaturedProjectStoryTelling'
+import { Certificates } from './Certificates'
+import { InquiryForm } from '../contacts/InquiryForm'
+import { AWARDS } from '../../data/site'
 
 export default function HomePage() {
   useEffect(() => {
@@ -81,7 +84,9 @@ export default function HomePage() {
       <div ref={window1} className="h-dvh snap-start" aria-hidden />
       <div className="after-stage">
         <FeaturedProjectStoryTelling />
-        <AwardsAndAchvements />
+        <AwardsAndAchvements items={AWARDS} />
+        <Certificates />
+        <InquiryForm />
       </div>
     </>
   )

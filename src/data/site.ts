@@ -125,6 +125,52 @@ export interface Project {
   stages: [string, string, string]
 }
 
+/**
+ * Awards & achievements shown on the recognition page. Placeholder copy —
+ * replace with the developer's real accolades. `image` is optional; leave it
+ * out and the card shows a labelled placeholder.
+ */
+export interface Award {
+  id: string
+  title: string
+  description: string
+  image?: string
+  [key: string]: unknown
+}
+
+export const AWARDS: Award[] = [
+  { id: 'a1', title: 'Design Excellence', description: 'Residential high-rise of the year' },
+  { id: 'a2', title: 'Green Building', description: 'Sustainable construction certification' },
+  { id: 'a3', title: 'Architectural Merit', description: 'For façade and skyline contribution' },
+  { id: 'a4', title: 'Luxury Living', description: 'Premium residences recognition' },
+  { id: 'a5', title: 'Innovation Award', description: 'Smart-home integration at scale' },
+  { id: 'a6', title: 'Safety Standard', description: 'Highest-grade structural compliance' },
+  { id: 'a7', title: 'Interior Design', description: 'Full-floor residence styling' },
+  { id: 'a8', title: 'Developer of Note', description: 'Regional trust and delivery record' },
+]
+
+/**
+ * Certificates & accreditations shown on the certificates page. Each card is a
+ * formal credential — body that issued it, the title, and the year. Replace the
+ * placeholders with the real certificates; add `image` to show a scan.
+ */
+export interface Certificate {
+  id: string
+  body: string
+  title: string
+  year: string
+  image?: string
+}
+
+export const CERTIFICATES: Certificate[] = [
+  { id: 'c1', body: 'RERA Tamil Nadu', title: 'Project Registration', year: '2025' },
+  { id: 'c2', body: 'ISO 9001', title: 'Quality Management System', year: '2024' },
+  { id: 'c3', body: 'IGBC', title: 'Green Homes — Gold Rating', year: '2025' },
+  { id: 'c4', body: 'Chennai Corporation', title: 'Building Plan Approval', year: '2024' },
+  { id: 'c5', body: 'ISO 14001', title: 'Environmental Management', year: '2024' },
+  { id: 'c6', body: 'Fire & Rescue Services', title: 'No-Objection Certificate', year: '2025' },
+]
+
 export const PROJECTS: Project[] = [
   {
     id: 'tower',
