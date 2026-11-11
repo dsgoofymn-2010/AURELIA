@@ -134,19 +134,23 @@ export interface Award {
   id: string
   title: string
   description: string
+  /** awarding body or category, shown as the small caption on the medallion */
+  kind: string
+  /** year conferred */
+  year: string
   image?: string
   [key: string]: unknown
 }
 
 export const AWARDS: Award[] = [
-  { id: 'a1', title: 'Design Excellence', description: 'Residential high-rise of the year' },
-  { id: 'a2', title: 'Green Building', description: 'Sustainable construction certification' },
-  { id: 'a3', title: 'Architectural Merit', description: 'For façade and skyline contribution' },
-  { id: 'a4', title: 'Luxury Living', description: 'Premium residences recognition' },
-  { id: 'a5', title: 'Innovation Award', description: 'Smart-home integration at scale' },
-  { id: 'a6', title: 'Safety Standard', description: 'Highest-grade structural compliance' },
-  { id: 'a7', title: 'Interior Design', description: 'Full-floor residence styling' },
-  { id: 'a8', title: 'Developer of Note', description: 'Regional trust and delivery record' },
+  { id: 'a1', title: 'Design Excellence', kind: 'Residential high-rise', year: '2025', description: 'Named residential high-rise of the year for form and liveability.' },
+  { id: 'a2', title: 'Green Building', kind: 'Sustainability', year: '2025', description: 'Recognised for sustainable construction and energy performance.' },
+  { id: 'a3', title: 'Architectural Merit', kind: 'Skyline', year: '2024', description: 'For the façade and its contribution to the city skyline.' },
+  { id: 'a4', title: 'Luxury Living', kind: 'Premium homes', year: '2025', description: 'Honoured for the standard of its full-floor residences.' },
+  { id: 'a5', title: 'Innovation Award', kind: 'Smart living', year: '2024', description: 'For smart-home integration delivered at building scale.' },
+  { id: 'a6', title: 'Safety Standard', kind: 'Structure', year: '2025', description: 'Highest-grade structural safety and compliance rating.' },
+  { id: 'a7', title: 'Interior Design', kind: 'Styling', year: '2024', description: 'For the styling and craft of the residence interiors.' },
+  { id: 'a8', title: 'Developer of Note', kind: 'Delivery', year: '2025', description: 'For a regional record of trust and on-time delivery.' },
 ]
 
 /**

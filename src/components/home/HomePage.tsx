@@ -16,6 +16,7 @@ import { AwardsAndAchvements } from './AwardsAndAchvements'
 import { FeaturedProjectStoryTelling } from './FeaturedProjectStoryTelling'
 import { Certificates } from './Certificates'
 import { InquiryForm } from '../contacts/InquiryForm'
+import { Footer } from '../Footer'
 import { AWARDS } from '../../data/site'
 
 export default function HomePage() {
@@ -87,6 +88,7 @@ export default function HomePage() {
         <AwardsAndAchvements items={AWARDS} />
         <Certificates />
         <InquiryForm />
+        <Footer />
       </div>
     </>
   )

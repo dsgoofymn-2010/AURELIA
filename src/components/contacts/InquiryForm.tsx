@@ -194,7 +194,7 @@ export function InquiryForm() {
         <div className="flex flex-col gap-1.5">
             <label
                 htmlFor={name}
-                className="font-cinzel text-sm font-medium tracking-wide text-champagne-soft/90"
+                className="text-[10px] uppercase tracking-[0.26em] text-champagne/90"
             >
                 {label} <span className="text-red-400">*</span>
             </label>
@@ -218,8 +218,8 @@ export function InquiryForm() {
                                     : 'off'
                 }
                 className={`
-          w-full rounded-lg border bg-white/5 px-4 py-3
-          font-josefin text-sm font-light text-white/90
+          w-full rounded-[3px] border bg-white/5 px-4 py-3
+          text-sm font-light text-white/90
           placeholder:text-white/30
           outline-none transition-all duration-300
           focus:border-champagne/50 focus:bg-white/8 focus:ring-1 focus:ring-champagne/30
@@ -232,7 +232,7 @@ export function InquiryForm() {
                         initial={{ opacity: 0, y: -4, height: 0 }}
                         animate={{ opacity: 1, y: 0, height: 'auto' }}
                         exit={{ opacity: 0, y: -4, height: 0 }}
-                        className="font-josefin text-xs font-light text-red-400"
+                        className="text-xs font-light text-red-400"
                     >
                         {errors[name]}
                     </motion.p>
@@ -243,7 +243,7 @@ export function InquiryForm() {
 
     /* ══════════════════════ render ══════════════════════ */
     return (
-        <section className="relative w-full overflow-hidden bg-ink px-4 py-20 sm:px-8 lg:px-16 xl:px-24">
+        <section id="contact" aria-labelledby="contact-title" className="relative z-10 w-full snap-start overflow-hidden bg-ink px-5 py-16 shadow-[0_-30px_60px_rgba(0,0,0,0.45)] sm:px-10 sm:py-20 lg:px-14">
             {/* ── Status Toast (top right) ── */}
             <AnimatePresence>
                 {submitStatus !== 'idle' && (
@@ -252,7 +252,7 @@ export function InquiryForm() {
                         animate={{ opacity: 1, x: 0, y: 0 }}
                         exit={{ opacity: 0, x: 60, y: -20 }}
                         transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                        className="fixed right-6 top-6 z-[9999] flex items-center gap-3 rounded-xl border border-white/10 px-5 py-3 shadow-2xl backdrop-blur-xl"
+                        className="fixed right-6 top-6 z-[9999] flex items-center gap-3 rounded-md border border-white/10 px-5 py-3 shadow-2xl backdrop-blur-xl"
                         style={{
                             background:
                                 submitStatus === 'success'
@@ -268,24 +268,23 @@ export function InquiryForm() {
                             status={statusConfig[submitStatus as Exclude<SubmitStatus, 'idle'>].status}
                             size={22}
                         />
-                        <span className="font-josefin text-sm font-light text-white/90">
+                        <span className="text-sm font-light text-white/90">
                             {statusConfig[submitStatus as Exclude<SubmitStatus, 'idle'>].label}
                         </span>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:gap-16">
+            <div className="mx-auto grid max-w-[1240px] gap-12 lg:grid-cols-2 lg:gap-16">
                 {/* ═════════════════════ LEFT COLUMN ═════════════════════ */}
                 <div className="flex flex-col justify-between">
                     {/* Heading */}
                     <div className="mb-12">
-                        <h1 className="font-cinzel text-4xl font-medium leading-tight tracking-wide text-champagne-soft sm:text-5xl lg:text-[3.4rem]">
-                            Let's Build Something{' '}
-                            <em className="not-italic text-champagne">Great Together.</em>{' '}
-                            Get in Touch Today.
-                        </h1>
-                        <p className="mt-6 max-w-lg font-josefin text-base font-extralight leading-relaxed text-mist/70">
+                        <div className="text-[10px] uppercase tracking-luxe text-champagne">Contact</div>
+                        <h2 id="contact-title" className="mt-3 font-display text-[40px] font-light leading-[1.04] text-champagne-soft sm:text-5xl lg:text-6xl">
+                            Let’s build something <em className="text-champagne">great together.</em>
+                        </h2>
+                        <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-mist">
                             Whether you're looking for a home, exploring a commercial space, or just
                             have a question about one of our projects in Chennai, we're happy to hear
                             from you.
@@ -293,11 +292,11 @@ export function InquiryForm() {
                     </div>
 
                     {/* Contact Info Grid – 3 cards (Mail, Telephone, Address) */}
-                    <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/10 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-white/10 sm:grid-cols-2">
                         {/* ── Mail ── */}
                         <div className="flex flex-col gap-4 border-b border-white/10 p-6 sm:border-r">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-cinzel text-lg font-medium tracking-wide text-champagne-soft">
+                                <h3 className="font-display text-2xl font-light text-champagne-soft">
                                     Mail
                                 </h3>
                                 {/* mail icon */}
@@ -320,19 +319,19 @@ export function InquiryForm() {
                             <div className="flex flex-col gap-1.5">
                                 <a
                                     href="mailto:auereliaarchitecture@gmail.com"
-                                    className="font-josefin text-sm font-extralight text-mist/60 transition-colors hover:text-champagne"
+                                    className="text-sm text-mist/80 transition-colors hover:text-champagne"
                                 >
                                     auereliaarchitecture@gmail.com
                                 </a>
                                 <a
                                     href="mailto:aurelia@admin.com"
-                                    className="font-josefin text-sm font-extralight text-mist/60 transition-colors hover:text-champagne"
+                                    className="text-sm text-mist/80 transition-colors hover:text-champagne"
                                 >
                                     aurelia@admin.com
                                 </a>
                                 <a
                                     href="mailto:aurelia@service.com"
-                                    className="font-josefin text-sm font-extralight text-mist/60 transition-colors hover:text-champagne"
+                                    className="text-sm text-mist/80 transition-colors hover:text-champagne"
                                 >
                                     aurelia@service.com
                                 </a>
@@ -342,7 +341,7 @@ export function InquiryForm() {
                         {/* ── Telephone ── */}
                         <div className="flex flex-col gap-4 border-b border-white/10 p-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-cinzel text-lg font-medium tracking-wide text-champagne-soft">
+                                <h3 className="font-display text-2xl font-light text-champagne-soft">
                                     Telephone
                                 </h3>
                                 {/* phone icon */}
@@ -364,13 +363,13 @@ export function InquiryForm() {
                             <div className="flex flex-col gap-1.5">
                                 <a
                                     href="tel:+914423456789"
-                                    className="font-josefin text-sm font-extralight text-mist/60 transition-colors hover:text-champagne"
+                                    className="text-sm text-mist/80 transition-colors hover:text-champagne"
                                 >
                                     +91 44 2345 6789
                                 </a>
                                 <a
                                     href="tel:+914428901234"
-                                    className="font-josefin text-sm font-extralight text-mist/60 transition-colors hover:text-champagne"
+                                    className="text-sm text-mist/80 transition-colors hover:text-champagne"
                                 >
                                     +91 44 2890 1234
                                 </a>
@@ -380,7 +379,7 @@ export function InquiryForm() {
                         {/* ── Address (spans full width on sm+) ── */}
                         <div className="flex flex-col gap-4 p-6 sm:col-span-2">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-cinzel text-lg font-medium tracking-wide text-champagne-soft">
+                                <h3 className="font-display text-2xl font-light text-champagne-soft">
                                     Address
                                 </h3>
                                 {/* location icon */}
@@ -400,7 +399,7 @@ export function InquiryForm() {
                                     <circle cx="12" cy="10" r="3" />
                                 </svg>
                             </div>
-                            <p className="font-josefin text-sm font-extralight leading-relaxed text-mist/60">
+                            <p className="text-sm leading-relaxed text-mist/80">
                                 Aurelia, #39, Anna Salai, Chennai,
                                 <br />
                                 Tamil Nadu 600 002
@@ -417,12 +416,10 @@ export function InquiryForm() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.7, ease: 'easeOut' }}
-                    className="flex flex-col gap-5 rounded-2xl border border-white/10 p-6 sm:p-8 lg:p-10"
+                    className="flex flex-col self-start gap-5 rounded-md border border-white/10 p-6 sm:p-8 lg:p-10"
                     style={{
                         background:
                             'linear-gradient(160deg, rgba(28, 24, 40, 0.55), rgba(14, 12, 22, 0.4))',
-                        backdropFilter: 'blur(18px) saturate(140%)',
-                        WebkitBackdropFilter: 'blur(18px) saturate(140%)',
                         boxShadow:
                             '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
                     }}
@@ -448,25 +445,13 @@ export function InquiryForm() {
                         whileTap={{ scale: 0.97 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                         className="
-              group relative mt-3 w-full cursor-pointer overflow-hidden rounded-lg
-              border border-champagne/20 bg-night px-6 py-3.5
-              font-cinzel text-sm font-medium uppercase tracking-[0.25em] text-champagne-soft
-              transition-colors duration-300
-              hover:border-champagne/40 hover:bg-champagne/10
+              relative mt-3 w-full cursor-pointer rounded-[3px]
+              bg-champagne px-6 py-4
+              text-[11px] font-semibold uppercase tracking-[0.3em] text-ink
+              transition-colors duration-300 hover:bg-champagne-soft
               disabled:cursor-not-allowed disabled:opacity-60
             "
                     >
-                        {/* Animated shine sweep */}
-                        <motion.span
-                            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-champagne/10 to-transparent"
-                            animate={{ translateX: ['−100%', '200%'] }}
-                            transition={{
-                                duration: 2.5,
-                                repeat: Infinity,
-                                repeatDelay: 3,
-                                ease: 'easeInOut',
-                            }}
-                        />
                         <span className="relative z-10">
                             {submitStatus === 'submitting' ? 'Submitting…' : 'Submit'}
                         </span>

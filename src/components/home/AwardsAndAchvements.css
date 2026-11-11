@@ -1,294 +1,151 @@
 /* ==========================================================================
-   Awards & Achievements - Orbit Reel Section Styles
-   Exact replica of the showcase video:
-   - Recognition & Honors top header badge
-   - 5-card panoramic sweeping arch
-   - Shimmering image skeleton with icon + "IMAGE" label
-   - Radiant coral glowing border on active center card
-   - Dynamically updating title & description below center card
-   - Smooth 3-second auto-rotation and instant click-to-center
+   Awards: the recognition page
+   --------------------------------------------------------------------------
+   The dark stage colour again, between two sheets of paper. A fan of award
+   medallions; the centre one is lit in champagne.
+
+   Only transform and opacity ever animate, so phones do it on the compositor.
    ========================================================================== */
 
-.awards-section-wrapper {
+.aw {
   position: relative;
-  width: 100%;
-  max-width: 100%;
-  background: #090a0f;
-  box-sizing: border-box;
-  padding: 3.5rem 1.5rem 4rem;
+  z-index: 10;
+  min-height: 100dvh;
+  scroll-snap-align: start;
   overflow: hidden;
+  color-scheme: dark;
+  color: #f4efe6;
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(217, 185, 138, 0.07), transparent 70%),
+    var(--color-ink);
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.45);
   user-select: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-/* ==========================================================================
-   Header Section
-   ========================================================================== */
-.awards-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.awards-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #ff5733;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-.awards-badge-icon {
-  width: 15px;
-  height: 15px;
-}
-
-.awards-heading {
-  font-size: clamp(28px, 3.8vw, 46px);
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.6px;
-  line-height: 1.15;
-}
-
-.awards-subheading {
-  font-size: clamp(13px, 1.5vw, 16px);
-  color: rgba(255, 255, 255, 0.52);
+.aw-wrap {
   margin: 0 auto;
-  max-width: 580px;
-  line-height: 1.45;
+  display: flex;
+  min-height: 100dvh;
+  max-width: 1240px;
+  flex-direction: column;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 20px max(20px, env(safe-area-inset-bottom)) 20px;
 }
+@media (min-width: 640px) { .aw-wrap { padding-left: 40px; padding-right: 40px; } }
+@media (min-width: 1024px) { .aw-wrap { padding-left: 56px; padding-right: 56px; } }
 
-/* ==========================================================================
-   Orbit Arch Stage
-   ========================================================================== */
-.orbit-stage {
-  --card-width: clamp(180px, 16vw, 240px);
-  --card-height: clamp(260px, 23vw, 345px);
-  --card-radius: 22px;
+.aw-top { display: flex; align-items: center; justify-content: space-between; }
 
+.aw-head { margin-top: 1.5rem; margin-bottom: 20px; border-bottom: 1px solid rgba(217, 185, 138, 0.18); padding-bottom: 1.1rem; }
+.aw-h2 {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 60px);
+  line-height: 1.02;
+  color: var(--color-champagne-soft);
+}
+.aw-h2 em { color: var(--color-champagne); }
+
+/* ---------------- the fan ---------------- */
+.aw-stage {
+  --w: clamp(178px, 17vw, 232px);
+  --h: calc(var(--w) * 1.42);
   position: relative;
-  width: 100%;
-  max-width: 100%;
-  height: clamp(430px, 38vw, 520px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  margin: 0 auto;
-  padding-top: 25px;
-  box-sizing: border-box;
-  overflow: visible;
+  flex: none;
+  height: calc(var(--h) + 96px);
+  /* the fan and its citation sit together in the middle of the page */
+  margin-top: auto;
+  padding-top: 24px;
+  outline-offset: -4px;
 }
-
-/* Subtle background spotlight behind the active card */
-.orbit-ambient-glow {
+.aw-glow {
   position: absolute;
-  top: 15%;
   left: 50%;
+  top: calc(var(--h) * 0.5 + 24px);
+  width: min(560px, 90vw);
+  height: 360px;
   transform: translate(-50%, -50%);
-  width: min(650px, 85vw);
-  height: 320px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 87, 51, 0.08) 0%,
-    rgba(255, 87, 51, 0.02) 40%,
-    transparent 70%
-  );
+  background: radial-gradient(closest-side, rgba(217, 185, 138, 0.16), transparent);
   pointer-events: none;
-  filter: blur(55px);
-  z-index: 1;
 }
 
-/* Individual card container positioned along the arc */
-.orbit-card-wrapper {
+.aw-slot {
   position: absolute;
   left: 50%;
-  top: 0;
-  width: var(--card-width);
-  height: var(--card-height);
-  transform-origin: center center;
-  box-sizing: border-box;
+  top: 24px;
+  width: var(--w);
+  height: var(--h);
   will-change: transform, opacity;
-  transition:
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.75s ease;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s ease;
 }
 
-/* Card body */
-.orbit-card {
+.aw-card {
   position: relative;
+  display: flex;
   width: 100%;
   height: 100%;
-  border-radius: var(--card-radius);
-  overflow: hidden;
-  box-sizing: border-box;
-  background: #12131a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 18px 45px -10px rgba(0, 0, 0, 0.85);
-  cursor: pointer;
-  outline: none;
-  transition:
-    border-color 0.4s ease,
-    box-shadow 0.4s ease,
-    filter 0.4s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Hover on inactive cards */
-.orbit-card:not(.is-active):hover {
-  border-color: rgba(255, 255, 255, 0.28);
-  filter: brightness(1.22);
-  box-shadow: 0 22px 55px -10px rgba(0, 0, 0, 0.95);
-}
-
-/* Center Active Card with radiant Coral Border (matching video) */
-.orbit-card.is-active {
-  cursor: default;
-  border: 2px solid #ff5733;
-  box-shadow:
-    0 0 32px rgba(255, 87, 51, 0.38),
-    0 0 10px rgba(255, 87, 51, 0.22),
-    0 26px 65px -12px rgba(0, 0, 0, 0.95);
-}
-
-/* ==========================================================================
-   Image Skeleton (Exact visual from video)
-   ========================================================================== */
-.orbit-skeleton-body {
-  position: absolute;
-  inset: 0;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  background: linear-gradient(165deg, #171822 0%, #101117 60%, #0a0a0f 100%);
-  border-radius: inherit;
+  gap: 6px;
   overflow: hidden;
-}
-
-/* Light shimmer sweep across skeleton */
-.orbit-skeleton-shimmer {
-  position: absolute;
-  inset: -100% 0;
-  width: 280%;
-  height: 280%;
-  background: linear-gradient(
-    115deg,
-    transparent 25%,
-    rgba(255, 255, 255, 0.02) 40%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.02) 60%,
-    transparent 75%
-  );
-  animation: orbit-shimmer-sweep 2.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-@keyframes orbit-shimmer-sweep {
-  0% {
-    transform: translate(-70%, -45%);
-  }
-  100% {
-    transform: translate(35%, 45%);
-  }
-}
-
-.orbit-skeleton-icon-box {
-  width: 56px;
-  height: 56px;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-  z-index: 2;
-}
-
-.orbit-skeleton-icon {
-  width: 26px;
-  height: 26px;
-}
-
-.orbit-skeleton-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  z-index: 2;
-}
-
-/* Image if supplied */
-.orbit-card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.orbit-card-image.is-loaded {
-  opacity: 1;
-}
-
-/* ==========================================================================
-   Active Card Info (Below center card, exact from video)
-   ========================================================================== */
-.orbit-active-info {
-  margin-top: 1.5rem;
+  padding: 18px 14px;
+  border: 1px solid rgba(217, 185, 138, 0.2);
+  border-radius: 3px;
+  background: linear-gradient(170deg, #1a1626, #100e18 70%);
+  color: var(--color-champagne);
+  font: inherit;
   text-align: center;
-  z-index: 6;
-  min-height: 58px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 24px 50px -18px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+/* an inner rule, like the border of a printed certificate */
+.aw-card::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(217, 185, 138, 0.12);
+  pointer-events: none;
+}
+.aw-card:hover { border-color: rgba(217, 185, 138, 0.5); }
+.aw-card[data-active='true'] {
+  cursor: default;
+  border-color: rgba(217, 185, 138, 0.75);
+  box-shadow: 0 0 0 1px rgba(217, 185, 138, 0.15), 0 0 46px -6px rgba(217, 185, 138, 0.28), 0 30px 60px -20px rgba(0, 0, 0, 0.95);
 }
 
-.orbit-active-title {
-  font-size: clamp(20px, 2.4vw, 26px);
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.3px;
-  animation: orbit-fade-slide-up 0.45s ease-out;
-}
+.aw-laurel { width: 58%; flex: none; }
+.aw-laurel-n { font-family: var(--font-display); font-size: 22px; fill: var(--color-champagne-soft); letter-spacing: 0.04em; }
+.aw-card-kind { margin-top: 4px; font-size: 8.5px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(217, 185, 138, 0.75); }
+.aw-card-title { font-family: var(--font-display); font-size: clamp(18px, 1.7vw, 23px); font-weight: 400; line-height: 1.1; color: var(--color-champagne-soft); }
+.aw-card-year { margin-top: 4px; font-size: 10px; letter-spacing: 0.3em; color: var(--color-mist); }
+.aw-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-.orbit-active-desc {
-  font-size: clamp(13px, 1.4vw, 15px);
-  color: rgba(255, 255, 255, 0.58);
-  margin: 4px 0 0;
-  animation: orbit-fade-slide-up 0.45s ease-out;
-}
+/* ---------------- the citation ---------------- */
+.aw-info { min-height: 92px; margin-bottom: auto; text-align: center; }
+.aw-info-in { animation: aw-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.aw-title { margin: 0; font-family: var(--font-display); font-weight: 300; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; color: var(--color-champagne-soft); }
+.aw-desc { margin: 8px auto 0; max-width: 30rem; font-size: 14px; line-height: 1.6; color: var(--color-mist); }
+@keyframes aw-rise { from { opacity: 0; transform: translateY(8px); } }
 
-@keyframes orbit-fade-slide-up {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.aw-nav { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 22px; border-top: 1px solid rgba(217, 185, 138, 0.18); padding-top: 16px; }
+.aw-arrow {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(217, 185, 138, 0.3);
+  border-radius: 50%;
+  background: none;
+  color: var(--color-champagne-soft);
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.aw-arrow:hover { border-color: var(--color-champagne); background: rgba(217, 185, 138, 0.08); }
+.aw-count { display: inline-flex; align-items: center; gap: 12px; font-size: 11px; letter-spacing: 0.3em; color: var(--color-mist); }
+.aw-count i { width: 28px; height: 1px; background: rgba(217, 185, 138, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-slot { transition: none; }
+  .aw-info-in { animation: none; }
 }
