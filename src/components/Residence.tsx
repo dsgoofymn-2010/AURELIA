@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { FLOORS, LAYOUT, RESIDENCE_FACTS, ROOMS, ROOM_BY_ID, type RoomId } from '../data/site'
+import { FLOORS, RESIDENCE_FACTS, ROOMS, ROOM_BY_ID, type RoomId } from '../data/site'
 import { openRoom, switchFloor } from '../director'
 import { stillUrl } from '../lib/media'
-import { useView } from '../hooks/useView'
 import { store, useStore } from '../store'
 import { useIsMobile } from '../hooks/useMediaQuery'
 import { PanLayer } from './PanLayer'
@@ -13,7 +12,6 @@ const ease = [0.22, 1, 0.36, 1] as const
 export function Residence() {
   const mode = useStore((s) => s.mode)
   const floor = useStore((s) => s.floor)
-  const r = useView()
   const mobile = useIsMobile()
   const [hot, setHot] = useState<RoomId | null>(null)
   const f = FLOORS[floor - 1]
@@ -25,71 +23,28 @@ export function Residence() {
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(11,10,16,0.78)_0%,rgba(11,10,16,0.2)_30%,transparent_50%),linear-gradient(0deg,rgba(11,10,16,0.85)_0%,transparent_28%)]" />
 
           {mobile && <PanLayer />}
-          {/* room hotspots */}
-          {ROOMS.map((room, i) => {
-            const [u, v] = LAYOUT.dollhouse_rooms[room.id]
-            const [x, y] = r.toScreen(u, v)
-            const on = hot === room.id
-            return (
-              <motion.button
-                key={room.id}
-                className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
-                style={{ left: x, top: y }}
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1, transition: { delay: 0.25 + i * 0.07, duration: 0.5, ease } }}
-                onPointerEnter={() => setHot(room.id)}
-                onPointerLeave={() => setHot(null)}
-                onFocus={() => setHot(room.id)}
-                onBlur={() => setHot(null)}
-                onClick={() => openRoom(room.id)}
-                aria-label={`Enter ${room.name}`}
-              >
-                <span className="relative flex h-7 w-7 items-center justify-center">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-champagne/25 [animation-duration:2.4s]" />
-                  <span className={`relative h-3 w-3 rounded-full border border-ink/40 transition ${on ? 'scale-125 bg-champagne-soft' : 'bg-champagne'} shadow-[0_0_16px_rgba(217,185,138,0.9)]`} />
-                </span>
-                <span
-                  className={`glass absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.24em] transition ${on ? 'text-champagne' : 'text-champagne-soft/90'}`}
-                >
-                  {room.name}
-                </span>
-                <AnimatePresence>
-                  {on && !mobile && (
-                    <motion.span
-                      className="glass pointer-events-none absolute bottom-full left-1/2 mb-3 block w-56 -translate-x-1/2 overflow-hidden rounded-sm text-left"
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 4 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <img src={stillUrl(room.id) ?? ''} alt="" className="block aspect-video w-full object-cover" />
-                      <span className="block px-3 py-2">
-                        <span className="block font-display text-lg leading-tight text-champagne-soft">{room.name}</span>
-                        <span className="text-[9px] uppercase tracking-[0.22em] text-mist">{room.area} · click to enter</span>
-                      </span>
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            )
-          })}
 
           {/* residence card */}
           <motion.aside
-            className="pointer-events-none absolute left-4 top-[118px] max-w-[19rem] sm:top-24 [&_button]:pointer-events-auto sm:left-8 lg:left-14 md:top-1/2 md:-translate-y-1/2"
+            className="pointer-events-none absolute left-4 top-[118px] max-w-[380px] sm:top-24 [&_button]:pointer-events-auto sm:left-8 lg:left-14 md:top-1/2 md:-translate-y-1/2"
             initial={{ opacity: 0, x: -14 }}
             animate={{ opacity: 1, x: 0, transition: { delay: 0.15, duration: 0.8, ease } }}
           >
+            {/* text scrim */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -inset-x-6 -inset-y-8 -z-10 bg-[linear-gradient(90deg,rgba(10,8,12,0.75)_0%,transparent_100%)] [mask-image:linear-gradient(180deg,transparent_0%,#000_14%,#000_86%,transparent_100%)]"
+            />
             <div className="text-[10px] uppercase tracking-luxe text-champagne/90">Residence</div>
             <h2 className="mt-2 font-display text-4xl sm:mt-3 sm:text-5xl font-light leading-none text-champagne-soft lg:text-6xl">{f.label}</h2>
-            <p className="mt-4 hidden text-sm leading-relaxed text-mist md:block">
+            <p className="mt-4 hidden max-w-[380px] text-[17px] leading-[1.7] text-[rgba(255,255,255,0.92)] [text-shadow:0_1px_12px_rgba(0,0,0,0.6)] md:block">
               A full-floor home with terraces on every side. Shown here is the typical plan, lifted from the tower with the ceiling removed — choose a room to walk in.
             </p>
             <div className="mt-6 hidden grid-cols-2 gap-x-6 gap-y-4 border-t hairline pt-5 md:grid">
               {RESIDENCE_FACTS.map(([v, l]) => (
                 <div key={l}>
                   <div className="font-display text-2xl text-champagne-soft">{v}</div>
-                  <div className="mt-0.5 text-[9px] uppercase tracking-[0.22em] text-mist">{l}</div>
+                  <div className="mt-0.5 text-[9px] uppercase tracking-[0.22em] text-[rgba(255,255,255,0.92)] [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">{l}</div>
                 </div>
               ))}
             </div>
@@ -107,14 +62,14 @@ export function Residence() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { delay: 0.3 } }}
           >
-            <button onClick={() => switchFloor(floor + 1)} disabled={floor >= 10} aria-label="Level above" className="glass h-10 w-10 rounded-full text-champagne-soft transition hover:text-champagne disabled:opacity-30">
+            <button onClick={() => switchFloor(floor + 1)} disabled={floor >= 10} aria-label="Floor above" className="glass h-10 w-10 rounded-full text-champagne-soft transition hover:text-champagne disabled:opacity-30">
               ↑
             </button>
             <div className="py-1 text-center">
-              <div className="text-[8px] uppercase tracking-[0.3em] text-mist">Level</div>
+              <div className="text-[8px] uppercase tracking-[0.3em] text-mist">Floor</div>
               <div className="font-display text-3xl tabular-nums text-champagne-soft">{String(floor).padStart(2, '0')}</div>
             </div>
-            <button onClick={() => switchFloor(floor - 1)} disabled={floor <= 1} aria-label="Level below" className="glass h-10 w-10 rounded-full text-champagne-soft transition hover:text-champagne disabled:opacity-30">
+            <button onClick={() => switchFloor(floor - 1)} disabled={floor <= 1} aria-label="Floor below" className="glass h-10 w-10 rounded-full text-champagne-soft transition hover:text-champagne disabled:opacity-30">
               ↓
             </button>
           </motion.div>

@@ -1,18 +1,15 @@
 import { motion } from 'framer-motion'
 import { FLOORS, SITE } from '../data/site'
-import { back, goHome, openFloor, openRooftop } from '../director'
-import { store, useStore, type Panel } from '../store'
+import { back, goHome } from '../director'
+import { useStore } from '../store'
 
 export function TopBar() {
   const mode = useStore((s) => s.mode)
   const floor = useStore((s) => s.floor)
   const room = useStore((s) => s.room)
-  const panel = useStore((s) => s.panel)
   if (mode === 'loading') return null
   const busy = mode === 'transition'
-  const openPanel = (p: Panel) => store.set({ panel: panel === p ? null : p })
   const backLabel = mode === 'room' ? FLOORS[floor - 1].label : mode === 'dollhouse' || mode === 'rooftop' ? 'The Tower' : null
-  const link = 'rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.28em] text-champagne-soft/80 transition hover:text-champagne disabled:opacity-40'
 
   return (
     <motion.header
@@ -35,28 +32,6 @@ export function TopBar() {
           </button>
         )}
       </div>
-      <nav className="pointer-events-auto flex items-center gap-1" aria-label="Main">
-        <div className="hidden items-center gap-1 md:flex">
-          <button className={link} disabled={busy || mode !== 'hero'} onClick={() => openFloor(floor)}>
-            Residences
-          </button>
-          <button className={link} disabled={busy || mode !== 'hero'} onClick={() => openRooftop()}>
-            Sky Garden
-          </button>
-          <button className={link} onClick={() => openPanel('amenities')}>
-            Amenities
-          </button>
-          <button className={link} onClick={() => openPanel('discover')}>
-            Discover
-          </button>
-        </div>
-        <button
-          onClick={() => openPanel('contact')}
-          className="ml-2 rounded-full border border-champagne/60 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-champagne-soft transition hover:bg-champagne hover:text-ink"
-        >
-          Book a viewing
-        </button>
-      </nav>
       {/* mobile back */}
       {backLabel && (
         <button

@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Featured projects: the second page
+   --------------------------------------------------------------------------
+   A sheet of drawing paper that scrolls up over the tower. Each slide is a
+   short film of a building going up, with its story beside it.
+
+   Everything that moves here is opacity or transform only, and the slides
+   are a native scroll-snap track, so phones do the work on the compositor.
+   ========================================================================== */
+
+.fp {
+  position: relative;
+  z-index: 10;
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  color-scheme: light;
+  background-color: var(--color-paper);
+  /* faint drafting grid */
+  background-image:
+    linear-gradient(rgba(21, 19, 28, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 19, 28, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--color-ink);
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.45);
+}
+
+.fp-track {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.fp-track::-webkit-scrollbar { display: none; }
+.fp-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: center; scroll-snap-stop: always; }
+
+/* the film sits straight on the paper: its studio-white edges are feathered into the page */
+.fp-film { position: relative; aspect-ratio: 9 / 16; background: var(--color-paper); }
+.fp-film > video,
+.fp-film > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fp-film::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--color-paper), transparent 20%, transparent 80%, var(--color-paper)),
+    linear-gradient(180deg, var(--color-paper), transparent 12%, transparent 90%, var(--color-paper));
+}
+
+/* story text: each block rises in when its slide becomes the current one */
+.fp-rise { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.fp-slide[data-active='true'] .fp-rise { opacity: 1; transform: none; transition-delay: calc(var(--i, 0) * 90ms + 120ms); }
+
+/* build progress under the film: runs for exactly as long as the film does */
+.fp-progress { transform: scaleX(0); transform-origin: left; }
+.fp-slide[data-state='playing'] .fp-progress { animation: fp-build var(--dur, 3s) linear forwards; }
+.fp-slide[data-state='done'] .fp-progress { transform: scaleX(1); }
+@keyframes fp-build { to { transform: scaleX(1); } }
+
+/* the three beats light up in turn while the film plays */
+.fp-beat { opacity: 0.38; transition: opacity 0.5s ease; }
+.fp-slide[data-state='done'] .fp-beat,
+.fp-slide[data-state='idle'] .fp-beat { opacity: 1; }
+.fp-slide[data-state='playing'] .fp-beat { animation: fp-beat-on 0.5s ease forwards; animation-delay: calc(var(--dur, 3s) * var(--b, 0) / 3); }
+@keyframes fp-beat-on { to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-rise { opacity: 1; transform: none; }
+  .fp-beat { opacity: 1; }
+}
+
+/* a building with no film yet rises out of the ground instead: the image is uncovered
+   from the plinth up over the same time a film would take */
+.fp-slide[data-state='playing'] .fp-still { animation: fp-build-up var(--dur, 3s) cubic-bezier(0.45, 0, 0.2, 1) both; }
+@keyframes fp-build-up { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* the last slide: "See more" */
+.fp-more { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; text-decoration: none; }
+.fp-more-go {
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  padding: 15px 30px;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-champagne-soft);
+}
+.fp-more-go > span { display: inline-block; margin-left: 8px; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.fp-more:hover .fp-more-go > span { transform: translateX(6px); }
+
+/* ==========================================================================
+   Projects page: every building on one sheet
+   ========================================================================== */
+.pj-grid { display: grid; gap: 28px 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 768px) { .pj-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 24px; } }
+@media (min-width: 1100px) { .pj-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.pj-card { display: block; align-self: start; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pj-pic {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(21, 19, 28, 0.12);
+  background: rgba(255, 255, 255, 0.35);
+  transition: border-color 0.4s ease;
+}
+/* the renders have a studio-white ground: multiplying drops it onto the paper */
+.pj-pic > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.pj-card:hover .pj-pic { border-color: rgba(148, 112, 60, 0.7); }
+.pj-card:hover .pj-pic > * { transform: scale(1.04); }
+.pj-tag { position: absolute; left: 10px; top: 10px; z-index: 1; display: flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(21, 19, 28, 0.82); padding: 5px 9px; font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-champagne-soft); }
+.pj-tag::before { content: ''; border-left: 5px solid currentColor; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
+
+.pj-in { opacity: 0; transform: translateY(14px); animation: pj-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes pj-in { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pj-in { opacity: 1; transform: none; animation: none; } }

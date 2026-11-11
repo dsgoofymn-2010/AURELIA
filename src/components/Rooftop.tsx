@@ -21,7 +21,7 @@ export function Rooftop() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.15, duration: 0.9, ease } }}
           >
-            <div className="text-[10px] uppercase tracking-luxe text-champagne/90">Level 11 · Amenity</div>
+            <div className="text-[10px] uppercase tracking-luxe text-champagne/90">Floor 11 · Amenity</div>
             <h2 className="mt-3 font-display text-5xl font-light leading-none text-champagne-soft sm:text-7xl">The Crown</h2>
             <div className="mt-6 grid max-w-4xl gap-4 border-t hairline pt-5 sm:grid-cols-3">
               {ITEMS.map(([t, d]) => (

@@ -8,9 +8,12 @@
  * transitions.
  */
 import gsap from 'gsap'
+import { MAX_DPR, TIER } from './tier'
 
 export type Pt = [number, number]
-type Layer = { key: string; img: HTMLImageElement | null; alpha: number; noZoom?: boolean }
+/** a still, or the shared <video> while a film plays */
+export type Frame = HTMLImageElement | HTMLVideoElement
+type Layer = { key: string; img: Frame | null; alpha: number; noZoom?: boolean }
 
 const IW = 1920
 const IH = 1080
@@ -28,6 +31,8 @@ class Renderer {
   zoom = { s: 1, u: 0.5, v: 0.5, pan: 0 }
   /** black veil 0..1 */
   veil = 0
+  /** true while a film plays: resampling drops a step, since a full-screen rescale runs every frame */
+  motion = false
   placeholder = 'Rendering in progress'
   private raf = 0
   private viewSubs = new Set<() => void>()
@@ -42,7 +47,7 @@ class Renderer {
     if (!this.canvas) return
     this.W = window.innerWidth
     this.H = window.innerHeight
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2)
+    this.dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
     this.canvas.width = Math.round(this.W * this.dpr)
     this.canvas.height = Math.round(this.H * this.dpr)
     this.canvas.style.width = `${this.W}px`
@@ -73,6 +78,11 @@ class Renderer {
     return { left: px + (r.left - px) * s + dx, top: py + (r.top - py) * s + dy, w: r.w * s, h: r.h * s }
   }
 
+  /** displayed rect of the full frame, transition zoom included */
+  viewRect() {
+    return this.zoomed()
+  }
+
   toScreen(u: number, v: number): Pt {
     const r = this.zoomed()
     return [r.left + u * r.w, r.top + v * r.h]
@@ -91,11 +101,11 @@ class Renderer {
   get base() {
     return this.layers[0]
   }
-  setBase(img: HTMLImageElement | null) {
+  setBase(img: Frame | null) {
     this.layers[0].img = img
     this.request()
   }
-  layer(key: string, img?: HTMLImageElement | null) {
+  layer(key: string, img?: Frame | null) {
     let l = this.layers.find((x) => x.key === key)
     if (!l) {
       l = { key, img: img ?? null, alpha: 0 }
@@ -117,7 +127,7 @@ class Renderer {
   /** crossfade from whatever is showing to img; resolves when done */
   /** crossfade to img. `resetZoom`: the new image is drawn unzoomed and the zoom is cleared when done
    *  (used to dissolve from a zoomed-in still into the first frame of a sequence). */
-  crossfade(img: HTMLImageElement | null, duration = 0.6, resetZoom = false): Promise<void> {
+  crossfade(img: Frame | null, duration = 0.6, resetZoom = false): Promise<void> {
     const finish = () => {
       if (resetZoom) this.setZoom({ s: 1, pan: 0 })
       this.clearLayers()
@@ -194,7 +204,7 @@ class Renderer {
     ctx.fillRect(0, 0, this.W, this.H)
     const rz = this.zoomed()
     const r0 = this.frameRect()
-    ctx.imageSmoothingQuality = 'high'
+    ctx.imageSmoothingQuality = TIER === 'sd' ? (this.motion ? 'low' : 'medium') : this.motion ? 'medium' : 'high'
     let drew = false
     for (const l of this.layers) {
       if (l.alpha <= 0.001) continue

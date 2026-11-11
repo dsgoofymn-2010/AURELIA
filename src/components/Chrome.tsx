@@ -3,10 +3,11 @@ import { useStore } from '../store'
 
 /** film grain + vignette + letterbox hairlines: the "lens" over every frame */
 export function Lens() {
+  const shot = useStore((s) => s.mode) === 'transition'
   return (
     <>
       <div className="pointer-events-none fixed inset-0 z-10 vignette" />
-      <div className="pointer-events-none fixed inset-0 z-10 grain" />
+      <div className="pointer-events-none fixed inset-0 z-10 grain" style={{ animationPlayState: shot ? 'paused' : 'running' }} />
     </>
   )
 }

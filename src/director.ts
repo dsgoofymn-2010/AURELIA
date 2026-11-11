@@ -4,9 +4,10 @@
  * pre-rendered stills and sequences.
  */
 import { FLOORS, HERO_FOCUS, ROOMS, type RoomId } from './data/site'
-import { heroUrl, loadImage, loadSequence, roomSeq, stillUrl } from './lib/media'
+import { heroUrl, loadFilm, loadImage, preloadFilm, roomSeq, stillUrl } from './lib/media'
 import { buffer, cancelPlayback, firstFrame, lastFrame, play } from './lib/player'
-import { renderer, type Pt } from './lib/renderer'
+import { renderer, type Frame, type Pt } from './lib/renderer'
+import { LITE } from './lib/tier'
 import { prefersReducedMotion } from './hooks/useReducedMotion'
 import { store, type Mode } from './store'
 
@@ -14,6 +15,8 @@ import { store, type Mode } from './store'
 const LIFT_ZOOM = { s: 2.3, u: 0.46, v: 0.43, pan: 0 }
 const ROOF_ZOOM = { s: 1.1, u: 0.44, v: 0.88, pan: 0 }
 const CENTER: Pt = [0.5, 0.5]
+/** going back never keeps the visitor waiting long: past this, the shot becomes a crossfade */
+const BACK = { reverse: true, maxWait: 1500 }
 
 let busy = false
 const reduced = () => prefersReducedMotion()
@@ -33,7 +36,7 @@ async function shot(mode: Mode, fn: () => Promise<void>) {
 }
 
 /** dissolve into `next` while it is drawn under the zoom of the old frame (reverse of a zoom-in) */
-async function dissolveZoomed(next: HTMLImageElement | null, z: typeof LIFT_ZOOM, dur = 0.45) {
+async function dissolveZoomed(next: Frame | null, z: typeof LIFT_ZOOM, dur = 0.45) {
   renderer.base.noZoom = true
   renderer.setZoom(z)
   await renderer.crossfade(next, dur)
@@ -43,7 +46,8 @@ async function dissolveZoomed(next: HTMLImageElement | null, z: typeof LIFT_ZOOM
 /* ------------------------------------------------------------ boot */
 
 export async function boot(onProgress: (p: number) => void) {
-  const critical = [heroUrl('all'), stillUrl('dollhouse'), ...FLOORS.map((f) => heroUrl(f.key))]
+  // only the tower itself holds up the first paint; everything else arrives behind it
+  const critical = [heroUrl('all')]
   let done = 0
   await Promise.all(
     critical.map((u) =>
@@ -53,8 +57,6 @@ export async function boot(onProgress: (p: number) => void) {
       }),
     ),
   )
-  // warm the first shot in the background
-  loadSequence('lift', 4)
   return true
 }
 
@@ -64,12 +66,32 @@ export async function intro() {
   renderer.setBase(await img(heroUrl('all')))
   if (reduced()) {
     store.set({ mode: 'hero' })
+    warmHero()
     return
   }
   renderer.setZoom({ s: 1.08, u: 0.48, v: 0.5, pan: 0 })
   store.set({ mode: 'hero' })
+  // the lift is the first shot a visitor can trigger: fetch it while the hero settles
+  if (!LITE) preloadFilm('lift')
   await renderer.tweenZoom({ s: 1 }, 2.8, 'power3.out')
-  loadSequence('rooftop', 2)
+  warmHero()
+}
+
+/** background loading once the tower is on screen: floor lighting, then the next likely shots */
+async function warmHero() {
+  if (LITE) return
+  for (const f of FLOORS) await img(heroUrl(f.key), 1)
+  img(stillUrl('dollhouse'), 1)
+  if (reduced()) return
+  preloadFilm('lift')
+  preloadFilm('rooftop')
+}
+
+/** inside a residence: fetch the room fly-ins one at a time, and the way back out */
+async function warmResidence() {
+  if (LITE || reduced()) return
+  preloadFilm('lift', true)
+  for (const r of ROOMS) await loadFilm(roomSeq(r.id))?.ready
 }
 
 /* ------------------------------------------------------------ hero hover */
@@ -89,8 +111,9 @@ export async function hoverZone(key: string | null) {
     if (f.key === lit) renderer.fadeLayer(f.key, 1, 0.5)
     else if (renderer.layers.some((l) => l.key === f.key)) renderer.fadeLayer(f.key, 0, 0.6)
   }
-  if (lit) loadSequence('lift', 8)
-  if (key === 'rooftop') loadSequence('rooftop', 8)
+  if (reduced()) return
+  if (lit) preloadFilm('lift')
+  if (key === 'rooftop') preloadFilm('rooftop')
 }
 
 /* ------------------------------------------------------------ residence */
@@ -110,15 +133,19 @@ export function openFloor(n: number) {
       return
     }
     const first = await firstFrame('lift')
-    // zoom into the floor; the dissolve into frame 1 lands as the zoom reaches its match
-    // (the dissolve's zoom reset ends the zoom tween, so it is not awaited)
-    void renderer.tweenZoom(LIFT_ZOOM, 1.25, 'power2.in')
-    await wait(700)
-    await renderer.crossfade(first, 0.55, true)
+    // the way back out downloads while the lift plays
+    if (!LITE) preloadFilm('lift', true)
+    // the hero and the lift are separate renders, so let the zoom settle first and
+    // swap under a veil dip: the dissolve runs between two static frames, and the
+    // veil covers the jump in sky and exposure that no zoom can register away
+    await renderer.tweenZoom(LIFT_ZOOM, 1.25, 'power2.in')
+    await tweenVeil(0.85, 0.3)
     renderer.setFocus(CENTER)
+    await renderer.crossfade(first, 0.25, true)
+    await tweenVeil(0, 0.45)
     await play('lift', { fps: 24 })
     await renderer.crossfade(doll, 0.5)
-    ROOMS.forEach((r, i) => loadSequence(roomSeq(r.id), 3 - i * 0.1))
+    warmResidence()
   })
 }
 
@@ -127,7 +154,7 @@ export function closeFloor() {
     cancelPlayback()
     store.set({ room: null })
     const hero = await img(heroUrl('all'))
-    if (!reduced() && (await buffer('lift', 0.95))) {
+    if (!reduced() && (await buffer('lift', BACK))) {
       await renderer.crossfade(await lastFrame('lift'), 0.3)
       await play('lift', { reverse: true, fps: 36 })
       renderer.setFocus(HERO_FOCUS)
@@ -175,6 +202,7 @@ async function flyIn(r: RoomId) {
   if (!reduced() && (await buffer(name))) {
     await renderer.crossfade(await firstFrame(name), 0.25)
     await play(name, { fps: 24 })
+    if (!LITE) preloadFilm(name, true)
   }
   await renderer.crossfade(still, reduced() ? 0.6 : 0.45)
 }
@@ -182,7 +210,7 @@ async function flyIn(r: RoomId) {
 async function flyOut(r: RoomId, fast = false) {
   const name = roomSeq(r)
   renderer.setFocus(CENTER)
-  if (!reduced() && (await buffer(name, 0.95))) {
+  if (!reduced() && (await buffer(name, BACK))) {
     await renderer.crossfade(await lastFrame(name), 0.25)
     await play(name, { reverse: true, fps: fast ? 44 : 32 })
   }
@@ -231,13 +259,14 @@ export function openRooftop() {
     renderer.setFocus([0.5, 0.45])
     await play('rooftop', { fps: 24 })
     await renderer.crossfade(still, 0.5)
+    if (!LITE) preloadFilm('rooftop', true)
   })
 }
 
 export function closeRooftop() {
   return shot('hero', async () => {
     const hero = await img(heroUrl('all'))
-    if (!reduced() && (await buffer('rooftop', 0.95))) {
+    if (!reduced() && (await buffer('rooftop', BACK))) {
       await renderer.crossfade(await lastFrame('rooftop'), 0.3)
       await play('rooftop', { reverse: true, fps: 36 })
       renderer.setFocus(HERO_FOCUS)

@@ -1,9 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FLOORS, LAYOUT, RESIDENCE_FACTS, SITE } from '../data/site'
 import { hoverZone, openFloor, openRooftop } from '../director'
 import { useIsMobile, isTouchDevice } from '../hooks/useMediaQuery'
+import { prefersReducedMotion } from '../hooks/useReducedMotion'
 import { useView } from '../hooks/useView'
+import { renderer } from '../lib/renderer'
 import { store, useStore } from '../store'
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -15,6 +17,11 @@ const ZONES: Zone[] = [
   { key: 'ground', title: 'Lobby', sub: 'Double-height arrival hall' },
 ]
 const ZONE = Object.fromEntries(ZONES.map((z) => [z.key, z]))
+/** floor outlines in frame pixels: the SVG below is stretched over the frame, so they never need recomputing */
+const [FW, FH] = [1920, 1080]
+const OUTLINES = Object.entries(LAYOUT.hero_floors).map(([key, f]) => ({ key, points: f.poly.map(([u, v]) => `${(u * FW).toFixed(1)},${(v * FH).toFixed(1)}`).join(' ') }))
+
+const toProjects = () => document.getElementById('projects')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
 
 function activate(key: string) {
   if (key === 'rooftop') return openRooftop()
@@ -25,11 +32,29 @@ function activate(key: string) {
 export function Hero() {
   const mode = useStore((s) => s.mode)
   const hover = useStore((s) => s.hover)
-  const r = useView()
   const mobile = useIsMobile()
   const touch = isTouchDevice()
   const [armed, setArmed] = useState<string | null>(null)
   const show = mode === 'hero'
+  // only the floating tag needs React to follow the camera; the outlines follow it without re-rendering
+  const r = useView(show && !!hover)
+  const svg = useRef<SVGSVGElement>(null)
+  useEffect(() => {
+    if (!show) return
+    const place = () => {
+      const el = svg.current
+      if (!el) return
+      const v = renderer.viewRect()
+      el.style.transform = `translate(${v.left}px,${v.top}px)`
+      el.style.width = `${v.w}px`
+      el.style.height = `${v.h}px`
+    }
+    place()
+    const off = renderer.onView(place)
+    return () => {
+      off()
+    }
+  }, [show])
 
   const onZone = (key: string) => {
     // touch: first tap previews (lights the floor), second tap enters
@@ -54,7 +79,7 @@ export function Hero() {
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(11,10,16,0.82)_0%,rgba(11,10,16,0.35)_34%,transparent_55%,transparent_74%,rgba(11,10,16,0.7)_100%)] max-md:bg-[linear-gradient(180deg,rgba(11,10,16,0.75)_0%,transparent_32%,transparent_70%,rgba(11,10,16,0.85)_100%)]" />
 
           {/* floor hit areas, drawn over the exact rendered floors */}
-          <svg className="absolute inset-0 h-full w-full" onPointerLeave={() => !touch && hoverZone(null)}>
+          <svg ref={svg} viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="none" className="absolute left-0 top-0 overflow-visible" onPointerLeave={() => !touch && hoverZone(null)}>
             <defs>
               <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
                 <feGaussianBlur stdDeviation="3" result="b" />
@@ -64,8 +89,7 @@ export function Hero() {
                 </feMerge>
               </filter>
             </defs>
-            {Object.entries(LAYOUT.hero_floors).map(([key, f]) => {
-              const pts = f.poly.map(([u, v]) => r.toScreen(u, v).join(',')).join(' ')
+            {OUTLINES.map(({ key, points: pts }) => {
               const on = hover === key
               return (
                 <polygon
@@ -78,6 +102,7 @@ export function Hero() {
                   fill={on ? 'rgba(239,224,198,0.07)' : 'rgba(0,0,0,0)'}
                   stroke={on ? 'rgba(233,205,160,0.95)' : 'rgba(0,0,0,0)'}
                   strokeWidth={1.2}
+                  vectorEffect="non-scaling-stroke"
                   filter={on ? 'url(#glow)' : undefined}
                   onPointerEnter={() => !touch && hoverZone(key)}
                   onFocus={() => hoverZone(key)}
@@ -163,8 +188,11 @@ export function Hero() {
                     </button>
                   </motion.div>
                 ) : (
-                  <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-2 px-4 text-[9px] uppercase tracking-[0.3em] text-mist">
-                    Tap a floor to preview
+                  <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-2 flex items-center justify-between px-4 text-[9px] uppercase tracking-[0.3em] text-mist">
+                    <span>Tap a floor to preview</span>
+                    <button onClick={toProjects} className="-my-2 py-2 uppercase tracking-[0.3em] text-champagne-soft">
+                      Our projects ↓
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -214,6 +242,19 @@ export function Hero() {
                 })}
               </ul>
             </motion.nav>
+          )}
+
+          {/* the way to page two */}
+          {!mobile && (
+            <motion.button
+              onClick={toProjects}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 1.4, duration: 1 } }}
+              className="absolute bottom-8 left-8 flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] text-champagne-soft transition hover:text-champagne lg:left-14"
+            >
+              <span aria-hidden className="h-px w-10 bg-champagne/70" />
+              Featured projects <span aria-hidden>↓</span>
+            </motion.button>
           )}
 
         </motion.div>
