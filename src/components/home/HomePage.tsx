@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Caption, Lens, Waiting } from '../Chrome'
 import { Hero } from '../Hero'
 import { Loader } from '../Loader'
@@ -54,6 +55,16 @@ export default function HomePage() {
   useEffect(() => {
     document.documentElement.classList.toggle('locked', mode !== 'hero' || !!panel)
   }, [mode, panel])
+
+  // arriving with #awards / #contact (from the site navigation): go there once the tower is up,
+  // since until then the later pages are not in the document
+  const { hash } = useLocation()
+  const jumped = useRef('')
+  useEffect(() => {
+    if (!hash || mode !== 'hero' || jumped.current === hash) return
+    jumped.current = hash
+    requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView())
+  }, [hash, mode])
 
   // once the next page fully covers the tower, stop painting the stage underneath it
   const stage = useRef<HTMLElement>(null)

@@ -16,7 +16,6 @@ import { Link } from 'react-router-dom'
 import { FEATURED, PROJECTS, SITE, type Project } from '../../data/site'
 import { prefersReducedMotion } from '../../hooks/useReducedMotion'
 import { LITE } from '../../lib/tier'
-import { Sketch } from '../projects/Sketch'
 import './FeaturedProjectStoryTelling.css'
 
 type FilmState = 'idle' | 'playing' | 'done'
@@ -34,9 +33,13 @@ interface Props {
   seeMore?: boolean
   /** shown as "← All projects" in place of "↑ The tower" */
   onBack?: () => void
+  /** the page has the site navigation bar: leave room for it and drop the page's own top row */
+  nav?: boolean
+  /** the current slide changed */
+  onChange?: (project: Project | null) => void
 }
 
-export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, seeMore = true, onBack }: Props) {
+export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, seeMore = true, onBack, nav = false, onChange }: Props) {
   const section = useRef<HTMLElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const picker = useRef<HTMLDivElement>(null)
@@ -51,8 +54,18 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
 
   const setState = useCallback((i: number, s: FilmState) => setStates((prev) => (prev[i] === s ? prev : prev.map((x, k) => (k === i ? s : x)))), [])
 
+  /** image-only projects: the reveal runs the same states a film would, on a timer */
+  const timers = useRef<number[]>([])
   const start = useCallback(
     (i: number) => {
+      if (projects[i]?.noFilm) {
+        clearTimeout(timers.current[i])
+        setState(i, 'idle')
+        // next frame, so the reveal restarts from the ground on a replay
+        requestAnimationFrame(() => setState(i, 'playing'))
+        timers.current[i] = window.setTimeout(() => setState(i, 'done'), 3000)
+        return
+      }
       const v = videos.current[i]
       if (!v) return
       v.currentTime = 0
@@ -62,14 +75,17 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
         setState(i, 'idle')
       })
     },
-    [setState],
+    [projects, setState],
   )
 
   // open on the asked-for slide, before the first paint
   useLayoutEffect(() => {
     const el = slides.current[initial]
     if (el && track.current) track.current.scrollLeft = el.offsetLeft - track.current.offsetLeft
-  }, [initial])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => onChange?.(projects[active] ?? null), [active]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
   // is the page on screen?
   useEffect(() => {
@@ -94,16 +110,18 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
 
   // play the current film, stop the rest
   useEffect(() => {
-    videos.current.forEach((v, i) => {
-      if (!v) return
+    projects.forEach((p, i) => {
+      const v = videos.current[i]
       if (i === active && inView) {
-        if (!manual) start(i)
+        // an image reveal is cheap and needs no download, so it runs even where films wait for a tap
+        if (!manual || p.noFilm) start(i)
       } else {
-        v.pause()
+        v?.pause()
+        clearTimeout(timers.current[i])
         setState(i, 'idle')
       }
     })
-  }, [active, inView, manual, start, setState])
+  }, [active, inView, manual, start, setState, projects])
 
   // keep the current project's chip in view in the picker
   useEffect(() => {
@@ -122,9 +140,9 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
 
   return (
     <section ref={section} id="projects" className="fp" aria-labelledby="fp-title">
-      <div className="mx-auto flex min-h-dvh max-w-[1240px] flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top,0px))] sm:px-10 lg:px-14">
-        {/* page header */}
-        <div className="flex items-center justify-between">
+      <div className={`mx-auto flex min-h-dvh max-w-[1240px] flex-col px-5 pb-[max(20px,env(safe-area-inset-bottom))] sm:px-10 lg:px-14 ${nav ? 'pt-[calc(76px+env(safe-area-inset-top,0px))]' : 'pt-[calc(18px+env(safe-area-inset-top,0px))]'}`}>
+        {/* page header (the site navigation bar takes its place where there is one) */}
+        <div className={nav ? 'hidden' : 'flex items-center justify-between'}>
           <div className="font-display text-xl font-light tracking-[0.42em] text-ink">{SITE.brand}</div>
           <button
             onClick={onBack ?? (() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' }))}
@@ -136,7 +154,13 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
 
         <header className="mt-5 flex flex-wrap items-end justify-between gap-x-10 gap-y-3 border-b border-ink/15 pb-4 md:mt-6 md:pb-5">
           <div>
-            <div className="text-[10px] uppercase tracking-luxe text-bronze">{onBack ? 'Projects' : 'Featured projects'}</div>
+            {onBack ? (
+              <button onClick={onBack} className="text-[10px] uppercase tracking-luxe text-bronze transition hover:text-ink">
+                ← All projects
+              </button>
+            ) : (
+              <div className="text-[10px] uppercase tracking-luxe text-bronze">Featured projects</div>
+            )}
             <h2 id="fp-title" className="mt-2 font-display text-[34px] font-light leading-[1.02] text-ink sm:text-5xl lg:text-6xl">
               From first pour to <em className="text-bronze">final light.</em>
             </h2>
@@ -176,10 +200,10 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
                 aria-label={`${i + 1} of ${projects.length}: ${p.name}`}
                 aria-hidden={!on}
               >
-                {/* the film, or the drawing while the film is still to come */}
+                {/* the film, or the finished building rising where there is no film yet */}
                 <div className="fp-film mx-auto h-[38dvh] md:h-[min(56dvh,600px)]">
-                  {p.sketch ? (
-                    <Sketch floors={p.sketch[0]} bays={p.sketch[1]} className="absolute inset-0 h-full w-full text-bronze" />
+                  {p.noFilm ? (
+                    <img className="fp-still" src={stillUrl(p)} alt={p.name} loading={Math.abs(i - initial) < 2 ? 'eager' : 'lazy'} decoding="async" />
                   ) : (
                     <>
                       <video
@@ -230,18 +254,14 @@ export function FeaturedProjectStoryTelling({ projects = FEATURED, initial = 0, 
                     <span className="relative h-px flex-1 overflow-hidden bg-ink/15">
                       <span className="fp-progress absolute inset-0 bg-bronze" />
                     </span>
-                    {p.sketch ? (
-                      <span className="px-4 py-2 text-[10px] uppercase tracking-[0.24em] text-graphite">Film coming soon</span>
-                    ) : (
-                      <button
+                    <button
                         onClick={() => start(i)}
                         disabled={state === 'playing'}
                         tabIndex={on ? 0 : -1}
                         className="rounded-full border border-ink/25 px-4 py-2 text-[10px] uppercase tracking-[0.24em] text-ink transition hover:border-ink/70 disabled:border-transparent disabled:text-graphite"
                       >
-                        {state === 'playing' ? 'Building…' : state === 'done' ? 'Replay' : 'Play film'}
+                        {state === 'playing' ? 'Building…' : state === 'done' ? 'Replay' : p.noFilm ? 'Play' : 'Play film'}
                       </button>
-                    )}
                   </div>
                 </div>
               </article>

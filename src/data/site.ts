@@ -125,10 +125,10 @@ export interface Project {
   /** the three beats of the film, in order */
   stages: [string, string, string]
   /**
-   * No film yet: the project is shown as a line drawing instead. [floors, bays] sets
-   * the drawing's proportions. Remove this once <id>.mp4 and <id>.webp are in place.
+   * No construction film yet: only the finished-building image (<id>.webp) exists, and
+   * it is revealed rising from the ground instead. Remove once <id>.mp4 is rendered.
    */
-  sketch?: [number, number]
+  noFilm?: true
 }
 
 /**
@@ -210,14 +210,14 @@ export const PROJECTS: Project[] = [
     blurb: 'Rough-cut stone on a brick plinth, lancet windows and a slate spire: traditional craft, built to last.',
     stages: ['Stone walls rise from the brick base', 'Gables and traceried windows take shape', 'The spire and cross crown the tower'],
   },
-  // ---- placeholders below: shown on the projects page only, until their films are rendered ----
+  // ---- below: AI-generated renders, no film yet; shown on the projects page only ----
   {
     id: 'harbour',
     name: 'The Harbour Offices',
     kind: 'Commercial',
     blurb: 'Twelve floors of column-free workspace behind a shaded glass front, set on the waterfront road.',
     stages: ['Piles and raft go in below the tide line', 'Steel frame and decks rise two floors a week', 'Shading fins and glazing close the front'],
-    sketch: [12, 6],
+    noFilm: true,
   },
   {
     id: 'school',
@@ -225,7 +225,7 @@ export const PROJECTS: Project[] = [
     kind: 'Education',
     blurb: 'Low classroom wings around a planted court, with deep verandas so every room opens to shade.',
     stages: ['Wings are set out around the old trees', 'Brick walls and verandas go up', 'The court is planted and the gates open'],
-    sketch: [3, 8],
+    noFilm: true,
   },
   {
     id: 'villas',
@@ -233,7 +233,7 @@ export const PROJECTS: Project[] = [
     kind: 'Private homes',
     blurb: 'A row of courtyard villas in lime plaster and timber, each with its own pool and garden wall.',
     stages: ['Garden walls mark out each plot', 'Roofs and timber screens are fixed', 'Pools are filled and the palms go in'],
-    sketch: [2, 5],
+    noFilm: true,
   },
   {
     id: 'hotel',
@@ -241,7 +241,7 @@ export const PROJECTS: Project[] = [
     kind: 'Hospitality',
     blurb: 'A curved tower of sea-facing rooms over a lobby, ballroom and rooftop pool deck.',
     stages: ['The curved core climbs first', 'Room floors follow, balcony by balcony', 'Lobby, ballroom and pool deck are fitted'],
-    sketch: [16, 5],
+    noFilm: true,
   },
   {
     id: 'arcade',
@@ -249,7 +249,7 @@ export const PROJECTS: Project[] = [
     kind: 'Retail',
     blurb: 'Three levels of shops along a daylit internal street, with parking tucked below.',
     stages: ['Basement parking is dug and cast', 'The long roof light is lifted into place', 'Shopfronts and paving finish the street'],
-    sketch: [4, 9],
+    noFilm: true,
   },
   {
     id: 'library',
@@ -257,7 +257,7 @@ export const PROJECTS: Project[] = [
     kind: 'Public building',
     blurb: 'A stone reading hall under a folded roof, with a quiet garden court at its centre.',
     stages: ['Stone piers are raised around the court', 'The folded roof spans the hall', 'Shelving, lamps and the garden are set'],
-    sketch: [5, 7],
+    noFilm: true,
   },
   {
     id: 'lofts',
@@ -265,7 +265,7 @@ export const PROJECTS: Project[] = [
     kind: 'Adaptive reuse',
     blurb: 'An old brick mill kept and opened up as tall loft homes, with a new glass storey on the roof.',
     stages: ['The mill is stripped back to brick and iron', 'New floors and windows are threaded in', 'A glass storey is added on the roof'],
-    sketch: [7, 7],
+    noFilm: true,
   },
   {
     id: 'campus',
@@ -273,9 +273,9 @@ export const PROJECTS: Project[] = [
     kind: 'Workplace',
     blurb: 'Four linked office blocks around a shaded plaza, planned for natural light and cross-breeze.',
     stages: ['Four cores rise together', 'Bridges link the blocks at every third floor', 'The plaza is paved, planted and shaded'],
-    sketch: [9, 8],
+    noFilm: true,
   },
 ]
 
 /** the projects with a film: these are the ones on the second page */
-export const FEATURED = PROJECTS.filter((p) => !p.sketch)
+export const FEATURED = PROJECTS.filter((p) => !p.noFilm)

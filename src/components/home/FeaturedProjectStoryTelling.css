@@ -70,6 +70,11 @@
   .fp-beat { opacity: 1; }
 }
 
+/* a building with no film yet rises out of the ground instead: the image is uncovered
+   from the plinth up over the same time a film would take */
+.fp-slide[data-state='playing'] .fp-still { animation: fp-build-up var(--dur, 3s) cubic-bezier(0.45, 0, 0.2, 1) both; }
+@keyframes fp-build-up { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+
 /* the last slide: "See more" */
 .fp-more { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; text-decoration: none; }
 .fp-more-go {
@@ -103,10 +108,10 @@
 }
 /* the renders have a studio-white ground: multiplying drops it onto the paper */
 .pj-pic > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
-.pj-pic > svg { position: absolute; inset: 8% 0; width: 100%; height: 84%; color: var(--color-bronze); transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
 .pj-card:hover .pj-pic { border-color: rgba(148, 112, 60, 0.7); }
 .pj-card:hover .pj-pic > * { transform: scale(1.04); }
-.pj-tag { position: absolute; left: 10px; top: 10px; z-index: 1; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--color-graphite); }
+.pj-tag { position: absolute; left: 10px; top: 10px; z-index: 1; display: flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(21, 19, 28, 0.82); padding: 5px 9px; font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-champagne-soft); }
+.pj-tag::before { content: ''; border-left: 5px solid currentColor; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
 
 .pj-in { opacity: 0; transform: translateY(14px); animation: pj-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(var(--i, 0) * 45ms); }
 @keyframes pj-in { to { opacity: 1; transform: none; } }
