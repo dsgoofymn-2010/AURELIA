@@ -6,14 +6,14 @@
 import type { Award, Certificate } from '@/types/recognition'
 
 export const AWARDS: Award[] = [
-  { id: 'a1', title: 'Design Excellence', kind: 'Residential high-rise', year: '2025', description: 'Named residential high-rise of the year for form and liveability.' },
-  { id: 'a2', title: 'Green Building', kind: 'Sustainability', year: '2025', description: 'Recognised for sustainable construction and energy performance.' },
-  { id: 'a3', title: 'Architectural Merit', kind: 'Skyline', year: '2024', description: 'For the façade and its contribution to the city skyline.' },
-  { id: 'a4', title: 'Luxury Living', kind: 'Premium homes', year: '2025', description: 'Honoured for the standard of its full-floor residences.' },
-  { id: 'a5', title: 'Innovation Award', kind: 'Smart living', year: '2024', description: 'For smart-home integration delivered at building scale.' },
-  { id: 'a6', title: 'Safety Standard', kind: 'Structure', year: '2025', description: 'Highest-grade structural safety and compliance rating.' },
-  { id: 'a7', title: 'Interior Design', kind: 'Styling', year: '2024', description: 'For the styling and craft of the residence interiors.' },
-  { id: 'a8', title: 'Developer of Note', kind: 'Delivery', year: '2025', description: 'For a regional record of trust and on-time delivery.' },
+  { id: 'a1', title: 'Design Excellence', kind: 'Residential high-rise', year: '2025', description: 'Named residential high-rise of the year for form and liveability.', image: '/media/awards/design-excellence.png' },
+  { id: 'a2', title: 'Green Building', kind: 'Sustainability', year: '2025', description: 'Recognised for sustainable construction and energy performance.', image: '/media/awards/green-building1.png' },
+  { id: 'a3', title: 'Architectural Merit', kind: 'Skyline', year: '2024', description: 'For the façade and its contribution to the city skyline.', image: '/media/awards/architectural-merit.png' },
+  { id: 'a4', title: 'Luxury Living', kind: 'Premium homes', year: '2025', description: 'Honoured for the standard of its full-floor residences.', image: '/media/awards/luxury-living.png' },
+  { id: 'a5', title: 'Innovation Award', kind: 'Smart living', year: '2024', description: 'For smart-home integration delivered at building scale.', image: '/media/awards/smart-living.png' },
+  { id: 'a6', title: 'Safety Standard', kind: 'Structure', year: '2025', description: 'Highest-grade structural safety and compliance ratg .', image: '/media/awards/safety-standards.png' },
+  { id: 'a7', title: 'Interior Design', kind: 'Styling', year: '2024', description: 'For the styling and craft of the residence interiors.', image: '/media/awards/interior-design.png' },
+  { id: 'a8', title: 'Developer of Note', kind: 'Delivery', year: '2025', description: 'For a regional record of trust and on-time delivery.', image: '/media/awards/developer-of-note.png' },
 ]
 
 
