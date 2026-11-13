@@ -42,5 +42,5 @@ export const store = {
 }
 
 export function useStore<T>(sel: (s: State) => T): T {
-  return useSyncExternalStore(store.subscribe, () => sel(state))
+  return useSyncExternalStore(store.subscribe, () => sel(state), () => sel(state))
 }

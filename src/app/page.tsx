@@ -5,6 +5,7 @@ import { FeaturedProjectStoryboard } from '@/components/home/FeaturedProjectStor
 import { Home3DScene } from '@/components/home/Home3DScene'
 import { InquiryForm } from '@/components/contact/InquiryForm'
 import { SiteFooter } from '@/components/layout/SiteFooter'
+import { SiteHeader } from '@/components/layout/SiteHeader'
 import { AWARDS } from '@/data/recognition'
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
 
   return (
     <main>
+      <SiteHeader />
       <Home3DScene />
       {/* page one is the fixed tower above, seen through this empty screen-high window */}
       <div id="tower-window" className="h-dvh snap-start" aria-hidden />
