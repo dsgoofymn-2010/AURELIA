@@ -140,10 +140,11 @@ function Lobby() {
 
 function Contact() {
   const [sent, setSent] = useState(false)
+  const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const floor = useStore((s) => s.floor)
   const mode = useStore((s) => s.mode)
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const d = new FormData(e.currentTarget)
     const name = String(d.get('name') || '').trim()
@@ -153,17 +154,28 @@ function Contact() {
       return
     }
     setErr(null)
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Phone: ${d.get('phone') || '-'}`,
-      `Preferred date: ${d.get('date') || '-'}`,
-      `Residence of interest: ${d.get('floor') || '-'}`,
-      '',
-      String(d.get('message') || ''),
-    ].join('\n')
-    window.location.href = `mailto:${SITE.CONTACT_EMAIL}?subject=${encodeURIComponent('AURELIA — Private viewing request')}&body=${encodeURIComponent(body)}`
-    setSent(true)
+    setBusy(true)
+    try {
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          phone: String(d.get('phone') || '').trim(),
+          projectType: String(d.get('floor') || '').trim() || 'Any residence',
+          projectLocation: '',
+          preferredDate: String(d.get('date') || '').trim(),
+          message: String(d.get('message') || '').trim(),
+        }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setSent(true)
+    } catch {
+      setErr('We could not send your request just now. Please try again in a moment.')
+    } finally {
+      setBusy(false)
+    }
   }
   const field =
     'w-full rounded-sm border hairline bg-white/[0.03] px-3 py-2.5 text-sm text-champagne-soft placeholder:text-mist/50 focus:border-champagne/70 focus:outline-none'
@@ -193,12 +205,15 @@ function Contact() {
       {err && <p className="text-xs text-red-300">{err}</p>}
       {sent && (
         <p className="text-xs leading-relaxed text-champagne">
-          We tried to open your email app with the request filled in. If nothing opened, write to{' '}
-          <span className="select-all font-medium underline underline-offset-2">{SITE.CONTACT_EMAIL}</span>.
+          Thank you — your request has been received. A residence advisor will be in touch to confirm your viewing.
         </p>
       )}
-      <button type="submit" className="w-full rounded-sm bg-champagne py-3 text-[11px] font-semibold uppercase tracking-luxe text-ink transition hover:bg-champagne-soft">
-        Email my request
+      <button
+        type="submit"
+        disabled={busy}
+        className="w-full rounded-sm bg-champagne py-3 text-[11px] font-semibold uppercase tracking-luxe text-ink transition hover:bg-champagne-soft disabled:opacity-60"
+      >
+        {busy ? 'Sending…' : 'Request my viewing'}
       </button>
     </form>
   )

@@ -4,11 +4,11 @@ A pre-rendered, photoreal tour of the AURELIA tower. All imagery is rendered in 
 (`AURELIA_Cinematic.blend`) and played back in the browser on a single canvas.
 
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP · Framer Motion.
-Contact inquiries are stored and emailed by the FastAPI service in `backend/`.
+Contact inquiries are stored in PostgreSQL by the FastAPI service in `backend/`.
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000 (the contact form answers as a demo without the backend)
+npm run dev        # http://localhost:3000 (the contact form needs the backend running)
 npm run build      # production build: every page is prerendered, /api/inquiries runs on the server
 npm run start      # serve the production build
 npm run typecheck
@@ -16,7 +16,7 @@ npm run typecheck
 
 | Variable | Where | What |
 | --- | --- | --- |
-| `INQUIRY_API_URL` | server | Base URL of the FastAPI inquiries service, e.g. `http://localhost:8000`. Required in production: without it the form refuses rather than losing leads. |
+| `INQUIRY_API_URL` | server (`.env.local`) | Base URL of the FastAPI inquiries service, e.g. `http://localhost:8000`. Required: without it the form answers `503` rather than losing leads. |
 
 **Hosting on AWS:** the site needs a Node runtime for `/api/inquiries`, so deploy with AWS Amplify
 Hosting (Next.js SSR), or run `npm run build && npm run start` on EC2 / ECS / App Runner behind
@@ -57,7 +57,8 @@ public/media/                   everything the site loads (built by tools/build-
 4. **Rooms**: each room has a fly-in sequence that dissolves into a high-quality still.
    Use ←/→ to move between rooms. Back plays the flight in reverse.
 5. **The Crown**: the rooftop sequence and still.
-6. **Panels**: Discover, Amenities, Lobby, and Book a viewing (pre-filled email).
+6. **Panels**: Discover, Amenities, Lobby, and Book a viewing (a form that saves the
+   request through the API).
 7. **Featured projects (page two)**: scroll down from the tower. Four projects, each with a short
    film of the building going up. The film plays when its slide is shown; swipe, use the arrows
    or pick a project to move between them. The page only scrolls from the tower view.
@@ -99,4 +100,5 @@ Blender cameras, so the overlays line up with the renders exactly.
   give one its construction film.
 - `src/data/recognition.ts`: awards and certificates are placeholders. Do not publish
   credentials the developer does not hold.
-- Set `INQUIRY_API_URL` and the backend's SES settings (`backend/README.md`) before launch.
+- Set `INQUIRY_API_URL` in `.env.local` and the backend's configuration
+  (`backend/README.md`) before launch.

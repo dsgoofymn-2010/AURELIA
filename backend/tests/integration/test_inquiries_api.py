@@ -94,15 +94,50 @@ async def test_rejects_invalid_email(client, db_query):
 
 
 @pytest.mark.parametrize("field,value", [
-    ("phone", ""),
+    ("email", ""),
     ("projectType", ""),
-    ("project_location", ""),
+    ("name", ""),
     ("name", "   "),
 ])
 async def test_rejects_missing_or_empty_fields(client, db_query, field, value):
     res = await client.post("/api/v1/inquiries", json=make_payload(**{field: value}))
     assert res.status_code == 422
     assert await db_query("SELECT id FROM inquiries") == []
+
+
+async def test_optional_fields_may_be_omitted(client, db_query):
+    payload = {
+        "name": "No Phone",
+        "email": "nophone@example.com",
+        "projectType": "Apartment",
+    }
+    res = await client.post("/api/v1/inquiries", json=payload)
+    assert res.status_code == 201, res.text
+    body = res.json()
+    assert body["phone"] == ""
+    assert body["projectLocation"] == ""
+
+    rows = await db_query(
+        "SELECT phone, project_location, preferred_date, message FROM inquiries WHERE id = :id",
+        id=body["id"],
+    )
+    assert rows[0].phone == ""
+    assert rows[0].project_location == ""
+
+
+async def test_viewing_details_are_persisted(client, db_query):
+    payload = make_payload(preferredDate="2026-12-24", message="Evening slot, please")
+    res = await client.post("/api/v1/inquiries", json=payload)
+    assert res.status_code == 201, res.text
+    body = res.json()
+    assert body["preferredDate"] == "2026-12-24"
+    assert body["message"] == "Evening slot, please"
+
+    rows = await db_query(
+        "SELECT preferred_date, message FROM inquiries WHERE id = :id", id=body["id"]
+    )
+    assert rows[0].preferred_date == "2026-12-24"
+    assert rows[0].message == "Evening slot, please"
 
 
 async def test_rejects_overlong_values(client):

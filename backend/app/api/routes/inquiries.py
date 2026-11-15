@@ -1,10 +1,10 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_admin_key
 from app.db import get_db
 from app.schemas import InquiryCreate, InquiryOut
-from app.services import email_service, inquiry_service
+from app.services import inquiry_service
 
 router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 
@@ -12,11 +12,9 @@ router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 @router.post("", response_model=InquiryOut, status_code=201)
 async def create_inquiry(
     payload: InquiryCreate,
-    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ) -> InquiryOut:
     inquiry = await inquiry_service.create_inquiry(db, payload)
-    background_tasks.add_task(email_service.send_inquiry_notification, inquiry)
     return InquiryOut.model_validate(inquiry)
 
 

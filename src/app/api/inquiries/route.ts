@@ -1,14 +1,14 @@
 /**
- * POST /api/inquiries — the contact form posts here.
+ * POST /api/inquiries — the contact forms post here.
  *
  * The inquiry is checked with the same rules as the form, then handed to the inquiries
- * service (the FastAPI app in /backend), which stores it and emails the sales team.
+ * service (the FastAPI app in /backend), which stores it in PostgreSQL.
  * Doing this server-side keeps the service's address private and needs no CORS setup.
  *
  *   INQUIRY_API_URL   base URL of the FastAPI service, e.g. http://localhost:8000
  *
- * Without INQUIRY_API_URL the route answers as a demo in development (so the form can be
- * tried with `npm run dev` alone) and refuses in production rather than dropping leads.
+ * Without INQUIRY_API_URL the route refuses (503) rather than pretending the lead was
+ * saved — set it in `.env.local` (see README) before using the form.
  */
 import { NextResponse } from 'next/server'
 import { readInquiry, validateInquiry } from '@/lib/validation'
@@ -27,7 +27,6 @@ export async function POST(request: Request) {
 
   const base = process.env.INQUIRY_API_URL
   if (!base) {
-    if (process.env.NODE_ENV === 'development') return NextResponse.json({ ok: true, demo: true }, { status: 201 })
     console.error('INQUIRY_API_URL is not set: inquiry not delivered')
     return NextResponse.json({ error: 'Inquiries are not available right now' }, { status: 503 })
   }

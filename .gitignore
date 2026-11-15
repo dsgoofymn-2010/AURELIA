@@ -16,6 +16,19 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 
+# local env files (never commit secrets)
+.env
+.env*.local
+*.log
+
+# test/coverage artifacts
+coverage/
+htmlcov/
+.coverage
+.pytest_cache
+.mypy_cache/
+.ruff_cache/
+
 # next.js
 .next/
 next-env.d.ts

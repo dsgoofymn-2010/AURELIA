@@ -131,13 +131,14 @@ export function InquiryForm() {
         label: string,
         placeholder: string,
         type: string = 'text',
+        required: boolean = true,
     ) => (
         <div className="flex flex-col gap-1.5">
             <label
                 htmlFor={name}
                 className="text-[10px] uppercase tracking-[0.26em] text-champagne/90"
             >
-                {label} <span className="text-red-400">*</span>
+                {label} {required && <span className="text-red-400">*</span>}
             </label>
             <input
                 id={name}
@@ -367,12 +368,14 @@ export function InquiryForm() {
                 >
                     {inputField('name', 'Name', 'John Doe')}
                     {inputField('email', 'Email', 'johndoe@gmail.com', 'email')}
-                    {inputField('phone', 'Phone', '+91 920 220 4449', 'tel')}
+                    {inputField('phone', 'Phone', '+91 920 220 4449', 'tel', false)}
                     {inputField('projectType', 'Project Type', 'Residential / Commercial / Interior')}
                     {inputField(
                         'projectLocation',
                         'Project Location',
                         '39, Anna Salai, Chennai, Tamil Nadu 600 002',
+                        'text',
+                        false,
                     )}
 
                     {/* Submit Button */}

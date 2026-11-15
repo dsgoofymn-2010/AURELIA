@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 # Deterministic test environment, independent of any ambient shell values.
-os.environ["EMAIL_ENABLED"] = "false"
 os.environ["ADMIN_API_KEY"] = "test-key"
 
 from app.config import get_settings  # noqa: E402

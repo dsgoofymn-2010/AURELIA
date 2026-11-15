@@ -8,16 +8,20 @@ class InquiryCreate(BaseModel):
 
     name: str = Field(min_length=1, max_length=120)
     email: EmailStr
-    phone: str = Field(min_length=1, max_length=40)
+    phone: str = Field(default="", max_length=40)
     project_type: str = Field(
         min_length=1, max_length=120, alias="projectType", serialization_alias="projectType"
     )
     project_location: str = Field(
-        min_length=1,
+        default="",
         max_length=255,
         alias="projectLocation",
         serialization_alias="projectLocation",
     )
+    preferred_date: str = Field(
+        default="", max_length=10, alias="preferredDate", serialization_alias="preferredDate"
+    )
+    message: str = Field(default="", max_length=2000)
 
 
 class InquiryOut(BaseModel):
@@ -29,6 +33,8 @@ class InquiryOut(BaseModel):
     phone: str
     project_type: str = Field(serialization_alias="projectType")
     project_location: str = Field(serialization_alias="projectLocation")
+    preferred_date: str | None = Field(default=None, serialization_alias="preferredDate")
+    message: str | None = None
     created_at: datetime
 
 

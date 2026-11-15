@@ -72,14 +72,29 @@ def test_name_length_limit():
     assert InquiryCreate(**make_payload(name="x" * 120)).name
 
 
-@pytest.mark.parametrize("field,value", [
-    ("phone", ""),
-    ("projectType", ""),
-    ("project_location", ""),
-])
-def test_empty_required_fields_rejected(field, value):
+def test_empty_project_type_rejected():
     with pytest.raises(ValidationError):
-        InquiryCreate(**make_payload(**{field: value}))
+        InquiryCreate(**make_payload(projectType=""))
+
+
+def test_optional_fields_may_be_empty():
+    data = InquiryCreate(**make_payload(phone="", project_location=""))
+    assert data.phone == ""
+    assert data.project_location == ""
+
+
+def test_viewing_details_accepted():
+    data = InquiryCreate(
+        **make_payload(preferredDate="2026-12-01", message="Evening slot please")
+    )
+    assert data.preferred_date == "2026-12-01"
+    assert data.message == "Evening slot please"
+
+
+def test_viewing_details_default_to_empty():
+    data = make_valid()
+    assert data.preferred_date == ""
+    assert data.message == ""
 
 
 def test_phone_length_limit():
@@ -97,7 +112,7 @@ def test_project_location_length_limit():
         InquiryCreate(**make_payload(project_location="x" * 256))
 
 
-def test_missing_field_rejected():
-    payload = {k: v for k, v in VALID_PAYLOAD.items() if k != "phone"}
+def test_missing_name_rejected():
+    payload = {k: v for k, v in VALID_PAYLOAD.items() if k != "name"}
     with pytest.raises(ValidationError):
         InquiryCreate(**payload)

@@ -9,8 +9,6 @@ VALID_PAYLOAD = {
     "project_location": "Bengaluru",
 }
 
-OWNER_EMAIL = "menefides@gmail.com"
-
 
 def make_payload(**overrides) -> dict:
     payload = dict(VALID_PAYLOAD)
