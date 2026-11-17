@@ -17,6 +17,12 @@ export interface Inquiry {
 
 export type InquiryErrors = Partial<Record<keyof Inquiry, string>>
 
+/** Stable key for one logical submission; reuse it when retrying the same data. */
+export function createIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+}
+
 export const INQUIRY_FIELDS: (keyof Inquiry)[] = [
   'name',
   'email',

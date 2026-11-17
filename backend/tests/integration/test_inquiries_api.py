@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from sqlalchemy import text
@@ -17,7 +17,7 @@ async def test_create_inquiry_persists_row_in_postgres(client, db_query):
     assert isinstance(body["id"], int) and body["id"] > 0
     assert body["projectType"] == "Apartment"
     assert body["projectLocation"] == "Bengaluru"
-    assert body["created_at"]
+    assert body["createdAt"]
 
     rows = await db_query(
         "SELECT name, email, phone, project_type, project_location, created_at "
@@ -136,7 +136,7 @@ async def test_optional_fields_may_be_omitted(client, db_query):
 
 
 async def test_viewing_details_are_persisted(client, db_query):
-    future_date = (date.today() + timedelta(days=20)).isoformat()
+    future_date = (datetime.now(timezone.utc).date() + timedelta(days=20)).isoformat()
     payload = make_payload(
         email="viewing@example.com",
         preferredDate=future_date,
@@ -171,6 +171,40 @@ async def test_idempotency_key_prevents_duplicate_insert(client, db_query):
     assert id1 == id2
     rows = await db_query("SELECT id FROM inquiries WHERE email = 'idemp@example.com'")
     assert len(rows) == 1
+
+
+async def test_idempotency_key_reused_with_different_payload_returns_409(client, db_query):
+    payload = make_payload(email="conflict@example.com", idempotencyKey="reuse-key-123")
+    first = await client.post("/api/v1/inquiries", json=payload)
+    assert first.status_code == 201
+
+    changed = make_payload(
+        name="Different Name",
+        email="conflict@example.com",
+        idempotencyKey="reuse-key-123",
+    )
+    conflict = await client.post("/api/v1/inquiries", json=changed)
+    assert conflict.status_code == 409
+
+    rows = await db_query("SELECT id FROM inquiries WHERE email = 'conflict@example.com'")
+    assert len(rows) == 1
+
+
+async def test_list_filters_use_camel_case(client):
+    await client.post(
+        "/api/v1/inquiries",
+        json=make_payload(email="villa@example.com", projectType="Villa"),
+    )
+    await client.post(
+        "/api/v1/inquiries",
+        json=make_payload(email="apt@example.com", projectType="Apartment"),
+    )
+
+    res = await client.get("/api/v1/inquiries?projectType=Villa", headers=ADMIN)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["total"] == 1
+    assert [item["email"] for item in body["items"]] == ["villa@example.com"]
 
 
 async def test_rejects_overlong_values(client):

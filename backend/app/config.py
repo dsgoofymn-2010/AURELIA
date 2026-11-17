@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "AURELIA Inquiry API"
-    environment: str = "development"
+    # Fail closed: only an explicit "development" enables relaxed defaults.
+    environment: str = "production"
 
     database_url: str = "postgresql+asyncpg://aurelia:aurelia@localhost:5432/aurelia"
 
@@ -24,6 +25,12 @@ class Settings(BaseSettings):
     min_admin_key_length: int = 32
 
     allowed_hosts: str = ""
+    # Comma-separated IPs/CIDRs of proxies whose X-Forwarded-For is trusted.
+    trusted_proxies: str = ""
+
+    # Limits that protect the API directly (the Next proxy has its own).
+    inquiry_rate_limit_per_minute: int = 10
+    max_inquiry_body_bytes: int = 8192
 
     @property
     def cors_origin_list(self) -> list[str]:
@@ -32,6 +39,10 @@ class Settings(BaseSettings):
     @property
     def allowed_host_list(self) -> list[str]:
         return [h.strip() for h in self.allowed_hosts.split(",") if h.strip()]
+
+    @property
+    def trusted_proxy_list(self) -> list[str]:
+        return [p.strip() for p in self.trusted_proxies.split(",") if p.strip()]
 
     @model_validator(mode="after")
     def _validate_production_settings(self) -> "Settings":

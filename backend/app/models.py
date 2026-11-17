@@ -17,12 +17,6 @@ class Inquiry(Base):
             unique=True,
             postgresql_where=text("idempotency_key IS NOT NULL"),
         ),
-        Index(
-            "ix_inquiries_email_project_type_created_at",
-            "email",
-            "project_type",
-            "created_at",
-        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

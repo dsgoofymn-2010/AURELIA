@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { FLOORS, RESIDENCE_FACTS, SITE } from '@/data/site'
+import { createIdempotencyKey } from '@/lib/validation'
 import { goHome, openFloor, openRooftop } from './director'
 import { useIsMobile } from './useMediaQuery'
 import { store, useStore } from './store'
@@ -142,6 +143,7 @@ function Contact() {
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const pendingRef = useRef<{ key: string; fingerprint: string } | null>(null)
   const floor = useStore((s) => s.floor)
   const mode = useStore((s) => s.mode)
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -153,24 +155,34 @@ function Contact() {
       setErr('Please enter your name and a valid email.')
       return
     }
+    const payload = {
+      name,
+      email,
+      phone: String(d.get('phone') || '').trim(),
+      projectType: 'Private Viewing',
+      projectLocation: '',
+      residenceFloor: String(d.get('floor') || '').trim() || 'Any residence',
+      preferredDate: String(d.get('date') || '').trim(),
+      message: String(d.get('message') || '').trim(),
+      website: String(d.get('website') || '').trim(),
+    }
+    const fingerprint = JSON.stringify(payload)
+    const key =
+      pendingRef.current?.fingerprint === fingerprint
+        ? pendingRef.current.key
+        : createIdempotencyKey()
+    pendingRef.current = { key, fingerprint }
+
     setErr(null)
     setBusy(true)
     try {
       const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          phone: String(d.get('phone') || '').trim(),
-          projectType: 'Private Viewing',
-          projectLocation: SITE.brand,
-          residenceFloor: String(d.get('floor') || '').trim() || 'Any residence',
-          preferredDate: String(d.get('date') || '').trim(),
-          message: String(d.get('message') || '').trim(),
-        }),
+        body: JSON.stringify({ ...payload, idempotencyKey: key }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      pendingRef.current = null
       setSent(true)
     } catch {
       setErr('We could not send your request just now. Please try again in a moment.')
@@ -182,6 +194,10 @@ function Contact() {
     'w-full rounded-sm border hairline bg-white/[0.03] px-3 py-2.5 text-sm text-champagne-soft placeholder:text-mist/50 focus:border-champagne/70 focus:outline-none'
   return (
     <form onSubmit={onSubmit} className="space-y-3" noValidate>
+      <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-auto h-px w-px overflow-hidden">
+        <label htmlFor="panel-website">Website</label>
+        <input id="panel-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
       <h3 className="font-display text-3xl font-light text-champagne-soft">Arrange a private viewing</h3>
       <p className="pb-2 text-sm text-mist">
         Our residence advisors will confirm your appointment. Or email <span className="select-all text-champagne-soft">{SITE.CONTACT_EMAIL}</span>

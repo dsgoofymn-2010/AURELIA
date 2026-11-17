@@ -1,6 +1,5 @@
 from collections.abc import AsyncIterator
 
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -40,13 +39,3 @@ async def get_db() -> AsyncIterator[AsyncSession]:
         raise RuntimeError("Database not initialised — call init_db() first")
     async with _session_factory() as session:
         yield session
-
-
-async def ping_db() -> bool:
-    try:
-        engine = get_engine()
-        async with engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-        return True
-    except Exception:
-        return False

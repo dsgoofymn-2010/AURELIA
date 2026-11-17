@@ -1,9 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react'
+import { useState, useEffect, useCallback, useRef, type FormEvent, type ChangeEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { StatusMark, type StatusMarkStatus } from '@/components/ui/StatusMark'
-import { validateInquiry as validate, type Inquiry, type InquiryErrors } from '@/lib/validation'
+import {
+    createIdempotencyKey,
+    validateInquiry as validate,
+    type Inquiry,
+    type InquiryErrors,
+} from '@/lib/validation'
 
 type FormData = Inquiry
 type FormErrors = InquiryErrors
@@ -46,6 +51,8 @@ export function InquiryForm() {
     const [errors, setErrors] = useState<FormErrors>({})
     const [touched, setTouched] = useState<Record<string, boolean>>({})
     const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
+    const honeypotRef = useRef<HTMLInputElement>(null)
+    const pendingRef = useRef<{ key: string; fingerprint: string } | null>(null)
 
     /* auto‑dismiss toast after 4 s */
     useEffect(() => {
@@ -105,15 +112,28 @@ export function InquiryForm() {
 
             /* ── submit to the inquiries API ── */
             setSubmitStatus('submitting')
+            const fingerprint = JSON.stringify(formData)
+            const key =
+                pendingRef.current?.fingerprint === fingerprint
+                    ? pendingRef.current.key
+                    : createIdempotencyKey()
+            pendingRef.current = { key, fingerprint }
+
             try {
                 // the site's own API route checks the details again and passes them to the inquiries service
                 const res = await fetch('/api/inquiries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({
+                        ...formData,
+                        idempotencyKey: key,
+                        website: honeypotRef.current?.value ?? '',
+                    }),
                 })
                 if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
+                pendingRef.current = null
+                if (honeypotRef.current) honeypotRef.current.value = ''
                 setSubmitStatus('success')
                 setFormData({ name: '', email: '', phone: '', projectType: '', projectLocation: '' })
                 setTouched({})
@@ -366,6 +386,17 @@ export function InquiryForm() {
                             '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
                     }}
                 >
+                    <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-auto h-px w-px overflow-hidden">
+                        <label htmlFor="website">Website</label>
+                        <input
+                            ref={honeypotRef}
+                            id="website"
+                            name="website"
+                            type="text"
+                            tabIndex={-1}
+                            autoComplete="off"
+                        />
+                    </div>
                     {inputField('name', 'Name', 'John Doe')}
                     {inputField('email', 'Email', 'johndoe@gmail.com', 'email')}
                     {inputField('phone', 'Phone', '+91 920 220 4449', 'tel', false)}

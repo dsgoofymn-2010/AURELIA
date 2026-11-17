@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_admin_key
+from app.api.deps import rate_limit_inquiry_submission, require_admin_key
 from app.db import get_db
 from app.schemas import InquiryCreate, InquiryListOut, InquiryOut
 from app.services import inquiry_service
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 @router.post("", response_model=InquiryOut, status_code=201)
 async def create_inquiry(
     payload: InquiryCreate,
+    _rate_limit: None = Depends(rate_limit_inquiry_submission),
     db: AsyncSession = Depends(get_db),
 ) -> InquiryOut:
     inquiry = await inquiry_service.create_inquiry(db, payload)
@@ -26,9 +27,9 @@ async def list_inquiries(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     email: str | None = Query(default=None),
-    project_type: str | None = Query(default=None),
-    created_after: datetime | None = Query(default=None),
-    created_before: datetime | None = Query(default=None),
+    project_type: str | None = Query(default=None, alias="projectType"),
+    created_after: datetime | None = Query(default=None, alias="createdAfter"),
+    created_before: datetime | None = Query(default=None, alias="createdBefore"),
     _admin: None = Depends(require_admin_key),
     db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:

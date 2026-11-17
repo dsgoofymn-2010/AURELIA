@@ -16,7 +16,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 # Deterministic test environment, independent of any ambient shell values.
+os.environ["ENVIRONMENT"] = "development"
 os.environ["ADMIN_API_KEY"] = "test-key"
+os.environ["INQUIRY_RATE_LIMIT_PER_MINUTE"] = "1000"
 
 from app.config import get_settings  # noqa: E402
 

@@ -127,11 +127,8 @@ export async function POST(request: Request) {
     )
   }
 
-  // Ensure an idempotency key is present
-  if (!inquiry.idempotencyKey) {
-    inquiry.idempotencyKey = crypto.randomUUID()
-  }
-
+  // Clients send an idempotency key and reuse it when retrying the same
+  // submission. Do not invent a fresh one here: that would defeat retries.
   const base = process.env.INQUIRY_API_URL
   if (!base) {
     console.error(`[Inquiries Proxy] INQUIRY_API_URL is not set (reqId: ${requestId})`)
@@ -177,6 +174,12 @@ export async function POST(request: Request) {
         return NextResponse.json(
           { error: 'Too many requests upstream. Please wait a moment.' },
           { status: 429, headers: { 'X-Request-Id': requestId } },
+        )
+      }
+      if (res.status === 409) {
+        return NextResponse.json(
+          { error: 'This submission key was already used with different details.' },
+          { status: 409, headers: { 'X-Request-Id': requestId } },
         )
       }
 

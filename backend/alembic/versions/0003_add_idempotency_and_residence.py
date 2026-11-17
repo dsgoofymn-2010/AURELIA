@@ -21,7 +21,28 @@ def upgrade() -> None:
     op.add_column("inquiries", sa.Column("idempotency_key", sa.String(length=64), nullable=True))
     op.add_column("inquiries", sa.Column("residence_floor", sa.String(length=40), nullable=True))
 
-    # 2. Change preferred_date from String(10) to Date
+    # 2. Change preferred_date from String(10) to Date.
+    # Legacy rows may contain "" or invalid dates; convert them to NULL
+    # first so the cast cannot abort the migration.
+    op.execute(
+        """
+        CREATE OR REPLACE FUNCTION pg_temp.aurelia_safe_date(value text)
+        RETURNS date AS $$
+        BEGIN
+            RETURN value::date;
+        EXCEPTION WHEN others THEN
+            RETURN NULL;
+        END;
+        $$ LANGUAGE plpgsql;
+        """
+    )
+    op.execute(
+        """
+        UPDATE inquiries
+        SET preferred_date = pg_temp.aurelia_safe_date(TRIM(preferred_date))::text
+        WHERE preferred_date IS NOT NULL;
+        """
+    )
     op.alter_column(
         "inquiries",
         "preferred_date",
@@ -60,6 +81,7 @@ def downgrade() -> None:
         "preferred_date",
         type_=sa.String(length=10),
         existing_type=sa.Date(),
+        postgresql_using="preferred_date::text",
         nullable=True,
     )
     op.drop_column("inquiries", "residence_floor")

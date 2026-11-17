@@ -44,12 +44,19 @@ def test_output_serialization_uses_camel_case():
     dumped = out.model_dump(by_alias=True)
     assert dumped["projectType"] == "Apartment"
     assert dumped["projectLocation"] == "Bengaluru"
+    assert dumped["createdAt"] == datetime(2026, 11, 10, tzinfo=timezone.utc)
     assert "project_type" not in dumped
+    assert "created_at" not in dumped
 
 
 def test_surrounding_whitespace_is_stripped():
     data = make_valid(name="  Jane Doe  ")
     assert data.name == "Jane Doe"
+
+
+def test_email_is_normalised_to_lowercase():
+    data = InquiryCreate(**make_payload(email="  Jane.Doe@Example.COM  "))
+    assert data.email == "jane.doe@example.com"
 
 
 # --- rejected input ------------------------------------------------------------
@@ -78,13 +85,17 @@ def test_empty_project_type_rejected():
 
 
 def test_optional_fields_normalized_to_none():
-    data = InquiryCreate(**make_payload(phone="", project_location=""))
+    data = InquiryCreate(
+        **make_payload(phone="", project_location="", preferredDate="", message="")
+    )
     assert data.phone is None
     assert data.project_location is None
+    assert data.preferred_date is None
+    assert data.message is None
 
 
 def test_viewing_details_accepted():
-    future_date = (date.today() + timedelta(days=14)).isoformat()
+    future_date = (datetime.now(timezone.utc).date() + timedelta(days=14)).isoformat()
     data = InquiryCreate(
         **make_payload(preferredDate=future_date, message="Evening slot please")
     )
@@ -99,7 +110,7 @@ def test_viewing_details_default_to_none():
 
 
 def test_past_date_rejected():
-    past_date = (date.today() - timedelta(days=1)).isoformat()
+    past_date = (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat()
     with pytest.raises(ValidationError):
         InquiryCreate(**make_payload(preferredDate=past_date))
 

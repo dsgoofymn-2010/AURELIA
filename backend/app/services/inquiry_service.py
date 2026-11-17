@@ -1,9 +1,16 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Any
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import (
+    DisconnectionError,
+    IntegrityError,
+    InterfaceError,
+    OperationalError,
+    SQLAlchemyError,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Inquiry
@@ -12,56 +19,72 @@ from app.schemas import InquiryCreate
 logger = logging.getLogger("app.inquiries")
 
 
+def _payload_matches(existing: Inquiry, payload: dict[str, Any]) -> bool:
+    return all(getattr(existing, field) == value for field, value in payload.items())
+
+
+async def _find_by_key(db: AsyncSession, key: str) -> Inquiry | None:
+    result = await db.execute(
+        select(Inquiry)
+        .where(Inquiry.idempotency_key == key)
+        .order_by(Inquiry.id.asc())
+        .limit(1)
+    )
+    return result.scalars().first()
+
+
+def _reuse(existing: Inquiry, payload: dict[str, Any], key: str) -> Inquiry:
+    if _payload_matches(existing, payload):
+        logger.info("idempotency hit key=%s → inquiry %s", key, existing.id)
+        return existing
+    logger.warning("idempotency key reuse with different payload key=%s", key)
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail="This idempotency key was already used with different submission data",
+    )
+
+
 async def create_inquiry(db: AsyncSession, data: InquiryCreate) -> Inquiry:
     dump = data.model_dump(by_alias=False)
+    idempotency_key = dump.pop("idempotency_key", None)
 
-    # --- Idempotency-key deduplication (24 h window) ---
-    idempotency_key = dump.get("idempotency_key")
     if idempotency_key:
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
-        existing = await db.execute(
-            select(Inquiry).where(
-                Inquiry.idempotency_key == idempotency_key,
-                Inquiry.created_at >= cutoff,
-            )
-        )
-        found = existing.scalars().first()
-        if found:
-            logger.info("idempotency hit key=%s → inquiry %s", idempotency_key, found.id)
-            return found
+        existing = await _find_by_key(db, idempotency_key)
+        if existing:
+            return _reuse(existing, dump, idempotency_key)
 
-    # --- Short-window email+project_type deduplication (5 min) ---
-    dedup_cutoff = datetime.now(timezone.utc) - timedelta(minutes=5)
-    existing_dup = await db.execute(
-        select(Inquiry).where(
-            Inquiry.email == dump["email"],
-            Inquiry.project_type == dump["project_type"],
-            Inquiry.created_at >= dedup_cutoff,
-        )
-    )
-    dup = existing_dup.scalars().first()
-    if dup:
-        logger.info(
-            "short-window dedupe hit email=%s project_type=%s → inquiry %s",
-            dump["email"],
-            dump["project_type"],
-            dup.id,
-        )
-        return dup
-
-    # --- Insert ---
-    inquiry = Inquiry(**dump)
+    inquiry = Inquiry(**dump, idempotency_key=idempotency_key)
     db.add(inquiry)
     try:
         await db.commit()
         await db.refresh(inquiry)
-    except Exception:
+    except IntegrityError:
+        # A concurrent request with the same idempotency key won the race.
+        await db.rollback()
+        if idempotency_key:
+            existing = await _find_by_key(db, idempotency_key)
+            if existing:
+                return _reuse(existing, dump, idempotency_key)
+        logger.exception("Integrity error while creating inquiry")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not store inquiry",
+        )
+    except (OperationalError, InterfaceError, DisconnectionError):
+        await db.rollback()
+        logger.exception("Database unavailable while creating inquiry")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database temporarily unavailable — please retry",
+        )
+    except SQLAlchemyError:
         await db.rollback()
         logger.exception("Database error while creating inquiry")
         raise HTTPException(
-            status_code=503,
-            detail="Database temporarily unavailable \u2014 please retry",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not store inquiry",
         )
+
     logger.info("stored inquiry %s", inquiry.id)
     return inquiry
 
