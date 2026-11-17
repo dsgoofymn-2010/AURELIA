@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 from pydantic import ValidationError
@@ -60,8 +60,8 @@ def test_invalid_email_rejected(bad_email):
         InquiryCreate(**make_payload(email=bad_email))
 
 
-@pytest.mark.parametrize("bad_name", ["", "   "])
-def test_empty_name_rejected(bad_name):
+@pytest.mark.parametrize("bad_name", ["", "   ", "a"])
+def test_empty_or_short_name_rejected(bad_name):
     with pytest.raises(ValidationError):
         InquiryCreate(**make_payload(name=bad_name))
 
@@ -77,29 +77,41 @@ def test_empty_project_type_rejected():
         InquiryCreate(**make_payload(projectType=""))
 
 
-def test_optional_fields_may_be_empty():
+def test_optional_fields_normalized_to_none():
     data = InquiryCreate(**make_payload(phone="", project_location=""))
-    assert data.phone == ""
-    assert data.project_location == ""
+    assert data.phone is None
+    assert data.project_location is None
 
 
 def test_viewing_details_accepted():
+    future_date = (date.today() + timedelta(days=14)).isoformat()
     data = InquiryCreate(
-        **make_payload(preferredDate="2026-12-01", message="Evening slot please")
+        **make_payload(preferredDate=future_date, message="Evening slot please")
     )
-    assert data.preferred_date == "2026-12-01"
+    assert data.preferred_date == date.fromisoformat(future_date)
     assert data.message == "Evening slot please"
 
 
-def test_viewing_details_default_to_empty():
+def test_viewing_details_default_to_none():
     data = make_valid()
-    assert data.preferred_date == ""
-    assert data.message == ""
+    assert data.preferred_date is None
+    assert data.message is None
 
 
-def test_phone_length_limit():
+def test_past_date_rejected():
+    past_date = (date.today() - timedelta(days=1)).isoformat()
     with pytest.raises(ValidationError):
-        InquiryCreate(**make_payload(phone="1" * 41))
+        InquiryCreate(**make_payload(preferredDate=past_date))
+
+
+def test_invalid_phone_rejected():
+    with pytest.raises(ValidationError):
+        InquiryCreate(**make_payload(phone="invalid-phone-abc"))
+
+
+def test_valid_phone_formats():
+    data = InquiryCreate(**make_payload(phone="+1 (555) 123-4567"))
+    assert data.phone == "+1 (555) 123-4567"
 
 
 def test_project_type_length_limit():

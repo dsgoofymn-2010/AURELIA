@@ -69,12 +69,15 @@ Field names accept both `projectType`/`project_type` and
 Validation failures return `422`. The row is committed to PostgreSQL before
 the `201` is returned.
 
-### `GET /api/v1/inquiries?limit=50` → `200`
+### `GET /api/v1/inquiries?limit=50&offset=0` → `200`
 Requires header `X-Admin-Key: $ADMIN_API_KEY` (locked with `401` if the key
-is unset). Returns newest first — handy to confirm storage.
+is unset or invalid; rate-limited on failed attempts). Returns paginated results
+with `items`, `total`, `offset`, and `limit`. Supports filters: `email`, `projectType`,
+`createdAfter`, `createdBefore`. Responses carry `Cache-Control: no-store, private`.
 
-### `GET /api/v1/health` → `200`
-`{"status": "ok", "database": "up"}` — checks a live `SELECT 1`.
+### `GET /api/v1/health` → `200` (or `503` degraded)
+`{"status": "ok", "database": "up"}` — checks a live `SELECT 1`. Returns HTTP 503
+if database connectivity is down. Use `/api/v1/ping` for a lightweight liveness probe.
 
 ## Tests
 Run from `backend/`:
@@ -95,4 +98,4 @@ Run from `backend/`:
 ## Configuration reference
 See `.env.example`. Point `DATABASE_URL` at your RDS endpoint in production —
 no code changes. `CORS_ORIGINS` lists the allowed browser origins
-(default `http://localhost:5173,http://localhost:4173`).
+(default `http://localhost:3000`).
