@@ -50,7 +50,7 @@ async def test_upgrade_cleans_legacy_dates_and_makes_optional_fields_nullable(
 ):
     config = _alembic_config()
     try:
-        await asyncio.to_thread(command.downgrade, config, LEGACY_REV)
+        await asyncio.to_thread(command.downgrade, config, LEGACY_REVISION)
         await _seed_legacy_rows(engine)
         await asyncio.to_thread(command.upgrade, config, "head")
 
