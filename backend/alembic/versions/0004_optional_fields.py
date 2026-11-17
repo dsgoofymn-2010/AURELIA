@@ -1,7 +1,7 @@
 """make phone/project_location optional and drop unused dedupe index
 
 Revision ID: 0004_optional_fields
-Revises: 0003_add_idempotency_and_residence
+Revises: 0003_add_idempotency_residence
 Create Date: 2026-11-17
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "0004_optional_fields"
-down_revision: Union[str, None] = "0003_add_idempotency_and_residence"
+down_revision: Union[str, None] = "0003_add_idempotency_residence"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
