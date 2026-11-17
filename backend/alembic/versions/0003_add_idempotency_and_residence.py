@@ -1,6 +1,6 @@
 """add idempotency_key, residence_floor, dedupe indexes, and date type
 
-Revision ID: 0003_add_idempotency_and_residence
+Revision ID: 0003_add_idempotency_residence
 Revises: 0002_add_viewing_details
 Create Date: 2026-11-17
 
@@ -10,7 +10,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "0003_add_idempotency_and_residence"
+revision: str = "0003_add_idempotency_residence"
 down_revision: Union[str, None] = "0002_add_viewing_details"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -86,4 +86,3 @@ def downgrade() -> None:
     )
     op.drop_column("inquiries", "residence_floor")
     op.drop_column("inquiries", "idempotency_key")
-
