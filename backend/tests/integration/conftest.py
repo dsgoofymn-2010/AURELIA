@@ -4,16 +4,21 @@ The suite skips cleanly when PostgreSQL is unreachable."""
 
 import asyncio
 import os
+import socket
 
 import pytest
-import pytest_asyncio
+try:
+    import pytest_asyncio
+except ImportError:
+    pytest_asyncio = pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 # Deterministic test environment, independent of any ambient shell values.
-os.environ["EMAIL_ENABLED"] = "false"
+os.environ["ENVIRONMENT"] = "development"
 os.environ["ADMIN_API_KEY"] = "test-key"
+os.environ["INQUIRY_RATE_LIMIT_PER_MINUTE"] = "1000"
 
 from app.config import get_settings  # noqa: E402
 
@@ -26,8 +31,18 @@ TEST_DB_NAME = "aurelia_test"
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def _is_pg_port_open(host: str = "localhost", port: int = 5432, timeout: float = 0.5) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except (OSError, TimeoutError):
+        return False
+
+
 async def _probe_server() -> None:
-    engine = create_async_engine(SERVER_DATABASE_URL, poolclass=NullPool)
+    if not _is_pg_port_open():
+        raise ConnectionRefusedError("PostgreSQL port 5432 is not accepting connections")
+    engine = create_async_engine(SERVER_DATABASE_URL, poolclass=NullPool, connect_args={"timeout": 2})
     try:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
@@ -66,6 +81,8 @@ def db_url() -> str:
     try:
         asyncio.run(_probe_server())
     except Exception as exc:  # noqa: BLE001 - any connection problem means "no DB"
+        if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
+            pytest.fail(f"PostgreSQL is not reachable in CI — fail-fast enforced ({exc})")
         pytest.skip(f"PostgreSQL is not reachable — start it with `docker compose up -d db` ({exc})")
     asyncio.run(_ensure_database())
     _run_alembic()

@@ -1,0 +1,88 @@
+{
+ "v": 2,
+ "hero": [
+  "all",
+  "f01",
+  "f02",
+  "f03",
+  "f04",
+  "f05",
+  "f06",
+  "f07",
+  "f08",
+  "f09",
+  "f10"
+ ],
+ "stills": [
+  "balcony",
+  "bathroom",
+  "bedroom2",
+  "dining",
+  "dollhouse",
+  "kitchen",
+  "living",
+  "master",
+  "rooftop"
+ ],
+ "films": {
+  "lift": {
+   "file": "lift",
+   "frames": 100,
+   "source_frames": 100,
+   "fps": 24
+  },
+  "rooftop": {
+   "file": "rooftop",
+   "frames": 72,
+   "source_frames": 72,
+   "fps": 24
+  },
+  "rooms/balcony": {
+   "file": "rooms-balcony",
+   "frames": 36,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/bathroom": {
+   "file": "rooms-bathroom",
+   "frames": 38,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/bedroom2": {
+   "file": "rooms-bedroom2",
+   "frames": 41,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/dining": {
+   "file": "rooms-dining",
+   "frames": 36,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/kitchen": {
+   "file": "rooms-kitchen",
+   "frames": 39,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/living": {
+   "file": "rooms-living",
+   "frames": 36,
+   "source_frames": 36,
+   "fps": 24
+  },
+  "rooms/master": {
+   "file": "rooms-master",
+   "frames": 40,
+   "source_frames": 36,
+   "fps": 24
+  }
+ },
+ "tiers": [
+  "hd",
+  "sd"
+ ],
+ "ext": "webp"
+}

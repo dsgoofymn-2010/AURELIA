@@ -1,0 +1,151 @@
+/* ==========================================================================
+   Awards: the recognition page
+   --------------------------------------------------------------------------
+   The dark stage colour again, between two sheets of paper. A fan of award
+   medallions; the centre one is lit in champagne.
+
+   Only transform and opacity ever animate, so phones do it on the compositor.
+   ========================================================================== */
+
+.aw {
+  position: relative;
+  z-index: 10;
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  overflow: hidden;
+  color-scheme: dark;
+  color: #f4efe6;
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(217, 185, 138, 0.07), transparent 70%),
+    var(--color-ink);
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.45);
+  user-select: none;
+}
+
+.aw-wrap {
+  margin: 0 auto;
+  display: flex;
+  min-height: 100dvh;
+  max-width: 1240px;
+  flex-direction: column;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 20px max(20px, env(safe-area-inset-bottom)) 20px;
+}
+@media (min-width: 640px) { .aw-wrap { padding-left: 40px; padding-right: 40px; } }
+@media (min-width: 1024px) { .aw-wrap { padding-left: 56px; padding-right: 56px; } }
+
+.aw-top { display: flex; align-items: center; justify-content: space-between; }
+
+.aw-head { margin-top: 1.5rem; margin-bottom: 20px; border-bottom: 1px solid rgba(217, 185, 138, 0.18); padding-bottom: 1.1rem; }
+.aw-h2 {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 60px);
+  line-height: 1.02;
+  color: var(--color-champagne-soft);
+}
+.aw-h2 em { color: var(--color-champagne); }
+
+/* ---------------- the fan ---------------- */
+.aw-stage {
+  --w: clamp(178px, 17vw, 232px);
+  --h: calc(var(--w) * 1.42);
+  position: relative;
+  flex: none;
+  height: calc(var(--h) + 96px);
+  /* the fan and its citation sit together in the middle of the page */
+  margin-top: auto;
+  padding-top: 24px;
+  outline-offset: -4px;
+}
+.aw-glow {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--h) * 0.5 + 24px);
+  width: min(560px, 90vw);
+  height: 360px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(217, 185, 138, 0.16), transparent);
+  pointer-events: none;
+}
+
+.aw-slot {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  width: var(--w);
+  height: var(--h);
+  will-change: transform, opacity;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s ease;
+}
+
+.aw-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  padding: 18px 14px;
+  border: 1px solid rgba(217, 185, 138, 0.2);
+  border-radius: 3px;
+  background: linear-gradient(170deg, #1a1626, #100e18 70%);
+  color: var(--color-champagne);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 24px 50px -18px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+/* an inner rule, like the border of a printed certificate */
+.aw-card::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(217, 185, 138, 0.12);
+  pointer-events: none;
+}
+.aw-card:hover { border-color: rgba(217, 185, 138, 0.5); }
+.aw-card[data-active='true'] {
+  cursor: default;
+  border-color: rgba(217, 185, 138, 0.75);
+  box-shadow: 0 0 0 1px rgba(217, 185, 138, 0.15), 0 0 46px -6px rgba(217, 185, 138, 0.28), 0 30px 60px -20px rgba(0, 0, 0, 0.95);
+}
+
+.aw-laurel { width: 58%; flex: none; }
+.aw-laurel-n { font-family: var(--font-display); font-size: 22px; fill: var(--color-champagne-soft); letter-spacing: 0.04em; }
+.aw-card-kind { margin-top: 4px; font-size: 8.5px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(217, 185, 138, 0.75); }
+.aw-card-title { font-family: var(--font-display); font-size: clamp(18px, 1.7vw, 23px); font-weight: 400; line-height: 1.1; color: var(--color-champagne-soft); }
+.aw-card-year { margin-top: 4px; font-size: 10px; letter-spacing: 0.3em; color: var(--color-mist); }
+.aw-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------------- the citation ---------------- */
+.aw-info { min-height: 92px; margin-bottom: auto; text-align: center; }
+.aw-info-in { animation: aw-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.aw-title { margin: 0; font-family: var(--font-display); font-weight: 300; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; color: var(--color-champagne-soft); }
+.aw-desc { margin: 8px auto 0; max-width: 30rem; font-size: 14px; line-height: 1.6; color: var(--color-mist); }
+@keyframes aw-rise { from { opacity: 0; transform: translateY(8px); } }
+
+.aw-nav { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 22px; border-top: 1px solid rgba(217, 185, 138, 0.18); padding-top: 16px; }
+.aw-arrow {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(217, 185, 138, 0.3);
+  border-radius: 50%;
+  background: none;
+  color: var(--color-champagne-soft);
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.aw-arrow:hover { border-color: var(--color-champagne); background: rgba(217, 185, 138, 0.08); }
+.aw-count { display: inline-flex; align-items: center; gap: 12px; font-size: 11px; letter-spacing: 0.3em; color: var(--color-mist); }
+.aw-count i { width: 28px; height: 1px; background: rgba(217, 185, 138, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-slot { transition: none; }
+  .aw-info-in { animation: none; }
+}

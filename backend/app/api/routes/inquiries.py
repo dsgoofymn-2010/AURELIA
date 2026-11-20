@@ -1,10 +1,13 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_admin_key
+from app.api.deps import rate_limit_inquiry_submission, require_admin_key
 from app.db import get_db
-from app.schemas import InquiryCreate, InquiryOut
-from app.services import email_service, inquiry_service
+from app.schemas import InquiryCreate, InquiryListOut, InquiryOut
+from app.services import inquiry_service
 
 router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 
@@ -12,20 +15,40 @@ router = APIRouter(prefix="/inquiries", tags=["inquiries"])
 @router.post("", response_model=InquiryOut, status_code=201)
 async def create_inquiry(
     payload: InquiryCreate,
-    background_tasks: BackgroundTasks,
+    _rate_limit: None = Depends(rate_limit_inquiry_submission),
     db: AsyncSession = Depends(get_db),
 ) -> InquiryOut:
     inquiry = await inquiry_service.create_inquiry(db, payload)
-    background_tasks.add_task(email_service.send_inquiry_notification, inquiry)
     return InquiryOut.model_validate(inquiry)
 
 
-@router.get("", response_model=list[InquiryOut])
+@router.get("", response_model=InquiryListOut)
 async def list_inquiries(
     limit: int = Query(default=50, ge=1, le=200),
-    x_admin_key: str | None = Header(default=None),
+    offset: int = Query(default=0, ge=0),
+    email: str | None = Query(default=None),
+    project_type: str | None = Query(default=None, alias="projectType"),
+    created_after: datetime | None = Query(default=None, alias="createdAfter"),
+    created_before: datetime | None = Query(default=None, alias="createdBefore"),
+    _admin: None = Depends(require_admin_key),
     db: AsyncSession = Depends(get_db),
-) -> list[InquiryOut]:
-    require_admin_key(x_admin_key)
-    inquiries = await inquiry_service.list_inquiries(db, limit=limit)
-    return [InquiryOut.model_validate(i) for i in inquiries]
+) -> JSONResponse:
+    result = await inquiry_service.list_inquiries(
+        db,
+        limit=limit,
+        offset=offset,
+        email=email,
+        project_type=project_type,
+        created_after=created_after,
+        created_before=created_before,
+    )
+    body = InquiryListOut(
+        items=[InquiryOut.model_validate(i) for i in result["items"]],
+        total=result["total"],
+        offset=result["offset"],
+        limit=result["limit"],
+    )
+    return JSONResponse(
+        content=body.model_dump(mode="json", by_alias=True),
+        headers={"Cache-Control": "no-store, private"},
+    )
