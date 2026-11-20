@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState, type FormEvent } from 'react'
 import { FLOORS, RESIDENCE_FACTS, SITE } from '../data/site'
+import { hasInquiryApi, submitInquiry } from '../lib/inquiries'
 import { goHome, openFloor, openRooftop } from '../director'
 import { useIsMobile } from '../hooks/useMediaQuery'
 import { store, useStore } from '../store'
@@ -143,25 +144,37 @@ function Contact() {
   const [err, setErr] = useState<string | null>(null)
   const floor = useStore((s) => s.floor)
   const mode = useStore((s) => s.mode)
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [busy, setBusy] = useState(false)
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const d = new FormData(e.currentTarget)
     const name = String(d.get('name') || '').trim()
     const email = String(d.get('email') || '').trim()
-    if (!name || !/^\S+@\S+\.\S+$/.test(email)) {
+    if (name.length < 2 || !/^\S+@\S+\.\S+$/.test(email)) {
       setErr('Please enter your name and a valid email.')
       return
     }
     setErr(null)
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Phone: ${d.get('phone') || '-'}`,
-      `Preferred date: ${d.get('date') || '-'}`,
-      `Residence of interest: ${d.get('floor') || '-'}`,
-      '',
-      String(d.get('message') || ''),
-    ].join('\n')
+    const form = e.currentTarget
+    const phone = String(d.get('phone') || '').trim()
+    const date = String(d.get('date') || '')
+    const residence = String(d.get('floor') || '')
+    const message = String(d.get('message') || '').trim()
+    if (hasInquiryApi) {
+      setBusy(true)
+      try {
+        await submitInquiry({ name, email, phone, projectType: 'Private viewing', preferredDate: date, residenceFloor: residence, message })
+        setSent(true)
+        form.reset()
+      } catch (ex) {
+        setErr(ex instanceof Error && ex.message.startsWith('Too many') ? ex.message : `We could not send your request. Please try again or email ${SITE.CONTACT_EMAIL}.`)
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+    // no backend configured: fall back to the visitor's email app
+    const body = [`Name: ${name}`, `Email: ${email}`, `Phone: ${phone || '-'}`, `Preferred date: ${date || '-'}`, `Residence of interest: ${residence || '-'}`, '', message].join('\n')
     window.location.href = `mailto:${SITE.CONTACT_EMAIL}?subject=${encodeURIComponent('AURELIA — Private viewing request')}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
@@ -191,14 +204,15 @@ function Contact() {
       </div>
       <textarea name="message" rows={3} placeholder="Message (optional)" className={field} />
       {err && <p className="text-xs text-red-300">{err}</p>}
-      {sent && (
+      {sent && hasInquiryApi && <p className="text-xs leading-relaxed text-champagne">Thank you. Your request has been received and our advisors will be in touch.</p>}
+      {sent && !hasInquiryApi && (
         <p className="text-xs leading-relaxed text-champagne">
           We tried to open your email app with the request filled in. If nothing opened, write to{' '}
           <span className="select-all font-medium underline underline-offset-2">{SITE.CONTACT_EMAIL}</span>.
         </p>
       )}
-      <button type="submit" className="w-full rounded-sm bg-champagne py-3 text-[11px] font-semibold uppercase tracking-luxe text-ink transition hover:bg-champagne-soft">
-        Email my request
+      <button type="submit" disabled={busy} className="w-full disabled:opacity-60 rounded-sm bg-champagne py-3 text-[11px] font-semibold uppercase tracking-luxe text-ink transition hover:bg-champagne-soft">
+        {hasInquiryApi ? (busy ? 'Sending…' : 'Send my request') : 'Email my request'}
       </button>
     </form>
   )

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { hasInquiryApi, submitInquiry } from '../../lib/inquiries'
 import { StatusMark, type StatusMarkStatus } from '../ui/StatusMark'
 
 /* ────────────────────────── types ────────────────────────── */
@@ -158,20 +159,10 @@ export function InquiryForm() {
             /* ── submit to the inquiries API ── */
             setSubmitStatus('submitting')
             try {
-                // VITE_API_URL points at the backend (e.g. https://api.aurelia…/api/v1).
-                // When it is unset the form still works as a demo: it resolves after a short
-                // pause so the static preview and local dev without the backend both succeed.
-                const api = import.meta.env.VITE_API_URL as string | undefined
-                if (api) {
-                    const res = await fetch(`${api.replace(/\/$/, '')}/inquiries`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData),
-                    })
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-                } else {
-                    await new Promise((resolve) => setTimeout(resolve, 1200))
-                }
+                // Without VITE_API_URL (static preview, local dev with no backend) the form
+                // acts as a demo and resolves after a short pause.
+                if (hasInquiryApi) await submitInquiry(formData)
+                else await new Promise((resolve) => setTimeout(resolve, 1200))
 
                 setSubmitStatus('success')
                 setFormData({ name: '', email: '', phone: '', projectType: '', projectLocation: '' })

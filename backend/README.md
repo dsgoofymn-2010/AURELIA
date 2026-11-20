@@ -123,7 +123,7 @@ production requires a strong `ADMIN_API_KEY` and non-default database
 credentials. Set `ENVIRONMENT=development` for local work.
 
 - `CORS_ORIGINS` — comma-separated allowed browser origins
-  (default `http://localhost:3000`).
+  (default `http://localhost:5173,http://localhost:4173`, the Vite dev and preview servers).
 - `ALLOWED_HOSTS` — optional comma-separated hostnames for
   TrustedHostMiddleware.
 - `TRUSTED_PROXIES` — comma-separated IPs/CIDRs whose `X-Forwarded-For` may be

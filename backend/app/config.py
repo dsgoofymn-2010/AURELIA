@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://aurelia:aurelia@localhost:5432/aurelia"
 
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:5173,http://localhost:4173"
     admin_api_key: str = ""
     min_admin_key_length: int = 32
 
