@@ -6,6 +6,7 @@ A pre-rendered, photoreal tour of the AURELIA tower. All imagery is rendered in 
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · GSAP · Framer Motion
 
 ```bash
+cd frontend
 npm install
 npm run dev       # http://localhost:5173
 npm run build     # static site in dist/ — upload the whole folder to any static host
@@ -31,7 +32,7 @@ residence and rooms you can drag sideways to look around the cropped frame.
 `prefers-reduced-motion` replaces the flights with crossfades.
 
 ## Media pipeline
-`python tools/build-media.py _render public/media` converts the Blender output for the web.
+`python tools/build-media.py _render frontend/public/media` converts the Blender output for the web.
 It needs ffmpeg: either on PATH, or `pip install imageio-ffmpeg`.
 - hero images and stills become 1920 px WebP
 - every camera move (lift, rooftop, room fly-ins) becomes a short H.264 film in `public/media/film/`,
